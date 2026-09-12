@@ -1,0 +1,52 @@
+package io.klartnet.kcp.game
+
+import io.klartnet.kcp.instances.game.GameInstance
+import net.kyori.adventure.text.Component
+import net.minestom.server.event.EventNode
+import net.minestom.server.event.player.*
+import net.minestom.server.event.trait.InstanceEvent
+import net.minestom.server.network.packet.client.play.ClientPlayerActionPacket
+
+fun EventNode<InstanceEvent>.addCombatListeners(game: GameInstance) {
+	addListener(PlayerUseItemEvent::class.java) { event ->
+		val player = event.player
+		if (!game.isAlive(player)) return@addListener
+		
+		val weapon = Weapon.from(event.itemStack.material()) ?: return@addListener
+		if (player.onCooldown(weapon.material)) {
+			event.isCancelled = true
+			return@addListener
+		}
+		weapon.onUse(player)
+	}
+
+	addListener(PlayerPacketEvent::class.java) { event ->
+		val packet = event.packet as? ClientPlayerActionPacket ?: return@addListener
+		if (packet.status.ordinal == 5 && game.isAlive(event.player)) {
+			val player = event.player
+			
+			player.heldWeapon()?.onRelease(player)
+		}
+	}
+	
+	addListener(PlayerHandAnimationEvent::class.java) { event ->
+		val player = event.player
+		
+		if (game.isAlive(player))
+			player.heldWeapon()?.onSwing(player)
+	}
+
+	addListener(PlayerSwapItemEvent::class.java) { event ->
+		event.isCancelled = true
+		val player = event.player
+		if (game.isAlive(player))
+			player.heldWeapon()?.onReload(player) ?: player.sendActionBar(Component.empty())
+	}
+	
+	addListener(PlayerChangeHeldSlotEvent::class.java) { event ->
+		val player = event.player
+		game.instance.scheduler().scheduleNextTick {
+			player.heldWeapon()?.onHold(player) ?: player.sendActionBar(Component.empty())
+		}
+	}
+}
