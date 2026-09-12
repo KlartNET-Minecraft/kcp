@@ -5,7 +5,6 @@ import net.kyori.adventure.sound.Sound
 import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.PlayerMoveEvent
 import net.minestom.server.event.trait.InstanceEvent
-import net.minestom.server.sound.SoundEvent
 import net.minestom.server.tag.Tag
 import kotlin.math.floor
 import kotlin.math.hypot
@@ -38,26 +37,16 @@ fun EventNode<InstanceEvent>.addFootstepListeners(game: GameInstance) {
 			floor(event.newPosition.y - 0.1).toInt(),
 			event.newPosition.blockZ()
 		)
-		val sound = when {
-			block.name().contains("grass") || block.name().contains("dirt") ->
-				SoundEvent.BLOCK_GRASS_STEP
-			block.name().contains("wood") || block.name().contains("planks") ->
-				SoundEvent.BLOCK_WOOD_STEP
-			block.name().contains("sand") ->
-				SoundEvent.BLOCK_SAND_STEP
-			block.name().contains("gravel") ->
-				SoundEvent.BLOCK_GRAVEL_STEP
-			else ->
-				SoundEvent.BLOCK_STONE_STEP
-		}
+		val blockSound = block.blockSoundType() ?: return@addListener
 
 		val pitch = 0.9f + Random.nextFloat() * 0.2f
 		game.instance.players.forEach {
 			if (it != player)
 				it.playSound(
 					Sound.sound(
-						sound,
-						Sound.Source.PLAYER, 2.5f, pitch
+						blockSound.stepSound(),
+						Sound.Source.PLAYER,
+						2.0f, pitch
 					),
 					event.newPosition
 				)
