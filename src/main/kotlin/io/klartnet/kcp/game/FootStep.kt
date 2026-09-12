@@ -16,8 +16,8 @@ private val stepDistTag = Tag.Double("step_dist")
 fun EventNode<InstanceEvent>.addFootstepListeners(game: GameInstance) {
 	addListener(PlayerMoveEvent::class.java) { event ->
 		val player = event.player
-		if (!game.isAlive(player) || player.isSneaking) return@addListener
-		if (!player.isOnGround) return@addListener
+		if (!game.isAlive(player)) return@addListener
+		if (player.isSneaking && !player.isOnGround) return@addListener
 
 		val dx = event.newPosition.x - player.position.x
 		val dz = event.newPosition.z - player.position.z
