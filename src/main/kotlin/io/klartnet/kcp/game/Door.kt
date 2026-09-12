@@ -67,21 +67,21 @@ fun EventNode<InstanceEvent>.addDoorListeners(game: GameInstance) {
 		val isIron = event.block.name().contains("iron")
 		game.instance.players.forEach {
 			if (it != event.player)
-			it.playSound(
-				Sound.sound(
-					when {
-						isOpen ->
-							if (isIron) SoundEvent.BLOCK_IRON_DOOR_CLOSE
-							else SoundEvent.BLOCK_WOODEN_DOOR_CLOSE
-						else ->
-							if (isIron) SoundEvent.BLOCK_IRON_DOOR_OPEN
-							else SoundEvent.BLOCK_WOODEN_DOOR_OPEN
-					},
-					Sound.Source.BLOCK,
-					1f, 1f
-				),
-				lowerPos
-			)
+				it.playSound(
+					Sound.sound(
+						when {
+							isOpen ->
+								if (isIron) SoundEvent.BLOCK_IRON_DOOR_CLOSE
+								else SoundEvent.BLOCK_WOODEN_DOOR_CLOSE
+							else ->
+								if (isIron) SoundEvent.BLOCK_IRON_DOOR_OPEN
+								else SoundEvent.BLOCK_WOODEN_DOOR_OPEN
+						},
+						Sound.Source.BLOCK,
+						1f, 1f
+					),
+					lowerPos
+				)
 		}
 	}
 }
