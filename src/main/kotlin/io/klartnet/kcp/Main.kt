@@ -26,7 +26,7 @@ fun main() {
 		}
 	}
 	
-//	startDebugMonitor()
+	startDebugMonitor()
 	
-	server.start("0.0.0.0", 49000)
+	server.start("0.0.0.0", 25575)
 }
