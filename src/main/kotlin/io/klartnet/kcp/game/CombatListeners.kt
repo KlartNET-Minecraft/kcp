@@ -5,7 +5,11 @@ import net.kyori.adventure.text.Component
 import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.*
 import net.minestom.server.event.trait.InstanceEvent
+import net.minestom.server.item.Material
 import net.minestom.server.network.packet.client.play.ClientPlayerActionPacket
+import net.minestom.server.tag.Tag
+
+private val LASER_TAG = Tag.Long("laser")
 
 fun EventNode<InstanceEvent>.addCombatListeners(game: GameInstance) {
 	addListener(PlayerUseItemEvent::class.java) { event ->
@@ -18,6 +22,20 @@ fun EventNode<InstanceEvent>.addCombatListeners(game: GameInstance) {
 			return@addListener
 		}
 		weapon.onUse(player)
+	}
+	
+	addListener(PlayerMoveEvent::class.java) { event ->
+		val player = event.player
+		val weapon = player.heldWeapon() ?: return@addListener
+		if (!game.isAlive(player) || weapon.material != Material.SPYGLASS) return@addListener
+		
+		val now = System.currentTimeMillis()
+		if (now - (player.getTag(LASER_TAG) ?: 0L) < 100) return@addListener
+		player.setTag(LASER_TAG, now)
+		
+		player.drawWeaponLaser(
+			range = weapon.maxRange
+		)
 	}
 
 	addListener(PlayerPacketEvent::class.java) { event ->

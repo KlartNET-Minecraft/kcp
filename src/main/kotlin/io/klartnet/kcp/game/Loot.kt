@@ -18,11 +18,9 @@ import net.minestom.server.sound.SoundEvent
 import kotlin.random.Random
 
 private val lootTable = listOf(
-	ItemStack.of(Material.DIRT) to 50,
-	ItemStack.of(Material.IRON_PICKAXE) to 30,
-	ItemStack.of(Material.IRON_HOE) to 30,
+	ItemStack.of(Material.IRON_HOE) to 10,
 	ItemStack.of(Material.SPYGLASS) to 10,
-	ItemStack.of(Material.PAPER) to 20,
+	ItemStack.of(Material.PAPER) to 50,
 	ItemStack.of(Material.DIAMOND_SPEAR) to 1
 )
 
@@ -46,10 +44,10 @@ fun EventNode<InstanceEvent>.addLootListeners(game: GameInstance) {
 		val key = "${p.blockX()}_${p.blockY()}_${p.blockZ()}"
 		val inv = game.containers.computeIfAbsent(key) {
 			val chest = Inventory(
-				InventoryType.CHEST_3_ROW,
+				InventoryType.CHEST_1_ROW,
 				Component.text("아이템 상자")
 			)
-			val itemCount = (5..10).random()
+			val itemCount = (3..7).random()
 			(0 until chest.size).shuffled().take(itemCount).forEach { slot ->
 				chest.setItemStack(slot, rollLoot())
 			}
@@ -70,12 +68,12 @@ fun EventNode<InstanceEvent>.addLootListeners(game: GameInstance) {
 		)
 	}
 }
-fun EventNode<InstanceEvent>.addDeathboxListeners(game: GameInstance) {
+fun EventNode<InstanceEvent>.addDropListeners(game: GameInstance) {
 	addListener(PlayerMoveEvent::class.java) { event ->
 		val player = event.player
-		if (!player.entityMeta.isFlyingWithElytra || !game.isAlive(player))
-			return@addListener
 		if (event.newPosition.sameBlock(player.position))
+			return@addListener
+		if (!player.entityMeta.isFlyingWithElytra || !game.isAlive(player))
 			return@addListener
 
 		val altitude = (player.position.y - game.map.spawnPos.y).toInt().coerceAtLeast(0)

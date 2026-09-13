@@ -23,39 +23,35 @@ import kotlin.math.abs
 
 enum class Weapon(
 	val material: Material,
+	val maxAmmo: Int = 0,
+	val maxRange: Double = 0.0,
 	val reloadTicks: Int = 20,
-	val maxAmmo: Int = 0
 ) {
 	RIFLE(
 		Material.IRON_HOE,
 		maxAmmo = 30,
+		maxRange = 50.0,
 		reloadTicks = 2 * 20
 	) {
 		override fun onUse(p: Player) {
 			p.fireGun(
 				this,
 				damage = 1f,
-				range = 50.0
+				range = this.maxRange
 			)
 		}
 	},
 	SNIPER(
 		Material.SPYGLASS,
 		maxAmmo = 1,
+		maxRange = 150.0,
 		reloadTicks = 5 * 20
 	) {
 		override fun onRelease(p: Player) {
 			p.fireGun(
 				this,
 				damage = 10f,
-				range = 100.0
-			)
-		}
-		override fun onSwing(p: Player) {
-			p.fireGun(
-				this,
-				damage = 10f,
-				range = 100.0
+				range = this.maxRange
 			)
 		}
 	},
@@ -82,7 +78,7 @@ enum class Weapon(
 }
 
 fun Player.heldWeapon(): Weapon? = Weapon.from(this.itemInMainHand.material())
-fun Player.fireGun(weapon: Weapon, damage: Float, range: Double) {
+private fun Player.fireGun(weapon: Weapon, damage: Float, range: Double) {
 	if (onCooldown(weapon.material)) return
 	val tag = Tag.Integer("ammo_${weapon.material.name()}")
 	val ammo = getTag(tag) ?: weapon.maxAmmo
@@ -100,15 +96,15 @@ fun Player.fireGun(weapon: Weapon, damage: Float, range: Double) {
 	if (nextAmmo == 0 || weapon.maxAmmo == 1)
 		reloadGun(weapon)
 }
-fun Player.reloadGun(weapon: Weapon) {
-	if (weapon.maxAmmo <= 0 || onCooldown(weapon.material)) return
+private fun Player.reloadGun(weapon: Weapon) {
+	if (weapon.maxAmmo <= 0 || this.onCooldown(weapon.material)) return
 	val tag = Tag.Integer("ammo_${weapon.material.name()}")
-	if ((getTag(tag) ?:weapon.maxAmmo) >= weapon.maxAmmo) return
+	if ((this.getTag(tag) ?: weapon.maxAmmo) >= weapon.maxAmmo) return
 	
-	setCooldown(weapon.material, weapon.reloadTicks)
-	setTag(tag, weapon.maxAmmo)
+	this.setCooldown(weapon.material, weapon.reloadTicks)
+	this.setTag(tag, weapon.maxAmmo)
 	
-	playSound(
+	this.playSound(
 		Sound.sound(
 			SoundEvent.ITEM_ARMOR_EQUIP_IRON,
 			Sound.Source.PLAYER,
@@ -116,14 +112,14 @@ fun Player.reloadGun(weapon: Weapon) {
 		)
 	)
 }
-fun Player.updateAmmoBar(weapon: Weapon) {
+private fun Player.updateAmmoBar(weapon: Weapon) {
 	if (weapon.maxAmmo <= 0) 
 		return sendActionBar(Component.empty())
 	
 	val ammo = getTag(Tag.Integer("ammo_${weapon.material.name()}")) ?: weapon.maxAmmo
 	sendActionBar(
 		Component.text(
-			"탄약: $ammo / ${weapon.maxAmmo}",
+			"$ammo / ${weapon.maxAmmo}",
 			when {
 				ammo > 10 -> NamedTextColor.GREEN
 				ammo > 0 -> NamedTextColor.YELLOW
@@ -135,41 +131,58 @@ fun Player.updateAmmoBar(weapon: Weapon) {
 
 private fun Player.shootRay(damage: Float, range: Double) {
 	if (this.instance == null) return
-	val eye = this.position.add(0.0, this.eyeHeight, 0.0)
 	val dir = this.position.direction().normalize()
+	val eye = this.position.add(
+		0.0,
+		if (isSneaking) 1.27 else this.eyeHeight,
+		0.0
+	)
 	
-	instance.playSound(
-		Sound.sound(
-			SoundEvent.ENTITY_FIREWORK_ROCKET_BLAST,
-			Sound.Source.PLAYER,
-			1f, 1.8f
-		),
-		eye
+	this.playWeaponSound(
+		SoundEvent.ENTITY_FIREWORK_ROCKET_BLAST,
+		1.8f
 	)
 	
 	for (step in 1..(range * 2).toInt()) {
-		val pt = eye.add(dir.mul(step * 0.5))
-		if (!instance.getBlock(pt).air()) break
-
-		instance.sendGroupedPacket(
-			ParticlePacket(
-				Particle.CRIT,
-				pt,
-				Vec.ZERO,
-				0f, 1
+		val point = eye.add(dir.mul(step * 0.5))
+		val blockedBlock = this.instance.getBlock(point)
+		
+		if (blockedBlock.solid()) {
+			val blockSound = blockedBlock.blockSoundType() ?: continue
+			
+			this.instance.playSound(
+				Sound.sound(
+					blockSound.breakSound(),
+					Sound.Source.BLOCK,
+					0.5f, 1.0f
+				),
+				point
 			)
-		)
+			break
+		}
 
-		val target = instance.getNearbyEntities(pt, 2.0)
+		this.instance.players.forEach { player ->
+			if (player != this)
+				player.sendPacket(
+					ParticlePacket(
+						Particle.CRIT,
+						point,
+						Vec.ZERO,
+						0f, 1
+					)
+				)
+		}
+
+		val target = this.instance.getNearbyEntities(point, 2.0)
 			.filterIsInstance<LivingEntity>()
-			.firstOrNull { it != this && it.contains(pt) } ?: continue
+			.firstOrNull { it != this && it.contains(point) } ?: continue
 
 		target.damage(
 			Damage(
 				DamageType.PLAYER_ATTACK,
 				null,
 				this,
-				pt,
+				point,
 				damage
 			)
 		)
@@ -190,17 +203,18 @@ private fun Player.shootTrident(weapon: Weapon) {
 	if (this.itemInMainHand.material() == weapon.material)
 		this.itemInMainHand = itemInMainHand.consume(1)
 
-	this.instance.playSound(
-		Sound.sound(
-			SoundEvent.ITEM_TRIDENT_THROW,
-			Sound.Source.PLAYER,
-			1.0F, 1.0F
-		),
-		this.position
+	this.playWeaponSound(
+		SoundEvent.ITEM_TRIDENT_THROW,
+		1.0f
 	)
 
 	val dir = this.position.direction()
-	val spawnPos = this.position.add(0.0, eyeHeight, 0.0).add(dir.mul(0.8))
+	val eye = this.position.add(
+		0.0,
+		if (isSneaking) 1.27 else eyeHeight,
+		0.0
+	)
+	val spawnPos = eye.add(dir.mul(0.2))
 
 	val aerodyn = Aerodynamics(0.00, 0.99, 0.99)
 	val vel = dir.mul(40.0)
@@ -212,6 +226,8 @@ private fun Player.shootTrident(weapon: Weapon) {
 		aerodynamics = aerodyn
 		velocity = vel
 		setNoGravity(true)
+		
+		setBoundingBox(0.1, 0.1, 0.1)
 
 		scheduleRemove(Duration.ofSeconds(3))
 	}
@@ -262,6 +278,56 @@ private fun Player.shootTrident(weapon: Weapon) {
 		trident.remove()
 	}
 	trident.setInstance(this.instance, spawnPos)
+}
+private fun Player.playWeaponSound(soundEvent: SoundEvent, pitch: Float = 1f) {
+	if (instance == null) return
+	
+	val sound = Sound.sound(
+		soundEvent,
+		Sound.Source.PLAYER,
+		1f,
+		pitch
+	)
+
+	playSound(sound)
+
+	val eye = this.position.add(
+		0.0,
+		if (isSneaking) 1.27 else eyeHeight,
+		0.0
+	)
+	this.instance.playSoundExcept(
+		this,
+		sound,
+		eye
+	)
+}
+fun Player.drawWeaponLaser(range: Double) {
+	if (this.instance == null) return
+	val dir = this.position.direction().normalize()
+	val eye = this.position.add(
+		0.0,
+		if (isSneaking) 1.27 else this.eyeHeight,
+		0.0
+	)
+
+	for (step in 1..(range * 2).toInt()) {
+		val point = eye.add(dir.mul(step * 0.5))
+		val blockedBlock = this.instance.getBlock(point)
+		if (blockedBlock.solid()) break
+		
+		this.instance.players.forEach {
+			if (it != this)
+				it.sendPacket(
+					ParticlePacket(
+						Particle.CRIT,
+						point,
+						Vec.ZERO,
+						0f, 1
+					)
+				)
+		}
+	}
 }
 
 private fun Entity.contains(point: Point): Boolean {

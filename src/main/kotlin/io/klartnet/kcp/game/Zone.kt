@@ -69,9 +69,10 @@ class Zone(
 		if (isShrinking) {
 			size = current.size
 			isShrinking = false
-			phase = queue.removeFirstOrNull()
 			
-			if (phase == null) {
+			val next = queue.removeFirstOrNull()
+			if (next == null) {
+				timer = Long.MAX_VALUE
 				instance.sendMessage(
 					Component.text(
 						"마지막 자기장에 도달했습니다!",
@@ -81,6 +82,7 @@ class Zone(
 				return
 			}
 			
+			phase = next
 			timer = phase!!.waitSec
 			instance.sendMessage(
 				Component.text(

@@ -41,7 +41,6 @@ class GameInstance(
 	private val featureSet = CombatFeatures.empty()
 		.version(CombatVersion.MODERN)
 		.add(CombatFeatures.VANILLA_EXPLOSION)
-		.add(CombatFeatures.VANILLA_ATTACK)
 		.add(CombatFeatures.VANILLA_KNOCKBACK)
 		.build()
 	val noTagTeam = MinecraftServer.getTeamManager()
@@ -186,7 +185,7 @@ class GameInstance(
 		
 		return Pos(
 			randomX,
-			map.spawnPos.y + 90.0,
+			map.spawnPos.y + 150.0,
 			randomZ,
 			Random.nextFloat() * 360F,
 			40F
@@ -258,7 +257,7 @@ class GameInstance(
 			addCombatListeners(this@GameInstance)
 			addHealListeners(this@GameInstance)
 			addLootListeners(this@GameInstance)
-			addDeathboxListeners(this@GameInstance)
+			addDropListeners(this@GameInstance)
 				
 			addChild(featureSet.createNode())
 		}

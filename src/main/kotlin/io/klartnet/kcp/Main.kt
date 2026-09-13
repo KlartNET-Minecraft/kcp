@@ -4,6 +4,7 @@ import io.klartnet.kcp.instances.lobby.LobbyInstance
 import net.minestom.server.Auth
 import net.minestom.server.MinecraftServer
 import net.minestom.server.entity.GameMode
+import net.minestom.server.entity.attribute.Attribute
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent
 import net.minestom.server.event.player.PlayerGameModeChangeEvent
 
@@ -15,12 +16,17 @@ fun main() {
 	val globalEventHandler = MinecraftServer.getGlobalEventHandler()
 	globalEventHandler.apply {
 		addListener(AsyncPlayerConfigurationEvent::class.java) { event ->
+			val player = event.player
+			
 			event.spawningInstance = LobbyInstance.instance
-			event.player.respawnPoint = LobbyInstance.map.spawnPos
+			
+			player.respawnPoint = LobbyInstance.map.spawnPos
+			player.getAttribute(Attribute.BLOCK_BREAK_SPEED).baseValue = 2.5
 		}
 		addListener(PlayerGameModeChangeEvent::class.java) { event ->
 			val player = event.player
 			val isSpectator = event.newGameMode == GameMode.SPECTATOR
+			
 			player.isInvulnerable = isSpectator
 //			player.isAutoViewable = !isSpectator
 		}

@@ -20,9 +20,9 @@ enum class Heal(
 ) {
 	BANDAGE(
 		Material.PAPER,
-		4.0f,
+		6.0f,
 		2L,
-		3 * 20
+		2 * 20
 	);
 	
 	companion object {

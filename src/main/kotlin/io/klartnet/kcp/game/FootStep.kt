@@ -5,6 +5,7 @@ import net.kyori.adventure.sound.Sound
 import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.PlayerMoveEvent
 import net.minestom.server.event.trait.InstanceEvent
+import net.minestom.server.sound.SoundEvent
 import net.minestom.server.tag.Tag
 import kotlin.math.floor
 import kotlin.math.hypot
@@ -37,19 +38,18 @@ fun EventNode<InstanceEvent>.addFootstepListeners(game: GameInstance) {
 			floor(event.newPosition.y - 0.1).toInt(),
 			event.newPosition.blockZ()
 		)
-		val blockSound = block.blockSoundType() ?: return@addListener
-
+		if (block.air()) return@addListener
+		
+		val blockSound = block.blockSoundType()?.stepSound() ?: SoundEvent.BLOCK_ANVIL_BREAK
 		val pitch = 0.9f + Random.nextFloat() * 0.2f
-		game.instance.players.forEach {
-			if (it != player)
-				it.playSound(
-					Sound.sound(
-						blockSound.stepSound(),
-						Sound.Source.PLAYER,
-						2.0f, pitch
-					),
-					event.newPosition
-				)
-		}
+		player.instance.playSoundExcept(
+			player,
+			Sound.sound(
+				blockSound,
+				Sound.Source.PLAYER,
+				1.0f, pitch
+			),
+			event.newPosition
+		)
 	}
 }
