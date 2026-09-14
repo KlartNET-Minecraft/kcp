@@ -204,7 +204,7 @@ private fun Player.shootTrident(weapon: Weapon) {
 
 	this.playWeaponSound(
 		SoundEvent.ITEM_TRIDENT_THROW,
-		1.0f
+		0.5f
 	)
 
 	val dir = this.position.direction()
