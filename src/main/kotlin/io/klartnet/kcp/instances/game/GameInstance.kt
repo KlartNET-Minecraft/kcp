@@ -195,6 +195,8 @@ class GameInstance(
 	private fun destroy() {
 		zone.stop()
 		
+		containers.clear()
+		
 		val transfers = instance.players.map { player ->
 			leave(player)
 		}.toTypedArray()

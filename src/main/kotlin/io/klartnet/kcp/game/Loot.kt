@@ -47,7 +47,7 @@ fun EventNode<InstanceEvent>.addLootListeners(game: GameInstance) {
 				InventoryType.CHEST_1_ROW,
 				Component.text("아이템 상자")
 			)
-			val itemCount = (3..5).random()
+			val itemCount = (3..4).random()
 			(0 until chest.size).shuffled().take(itemCount).forEach { slot ->
 				chest.setItemStack(slot, rollLoot())
 			}

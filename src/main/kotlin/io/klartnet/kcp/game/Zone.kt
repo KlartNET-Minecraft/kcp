@@ -1,5 +1,6 @@
 package io.klartnet.kcp.game
 
+import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.coordinate.Pos
@@ -40,8 +41,20 @@ class Zone(
 	/** 몰라 */
 	private var task: Task? = null
 	
+	private val bossBar = BossBar.bossBar(
+		Component.text(
+			"자기장 준비 중",
+			NamedTextColor.GREEN
+		),
+		1.0f,
+		BossBar.Color.GREEN,
+		BossBar.Overlay.PROGRESS
+	)
+	
 	fun start() {
 		update()
+		
+		instance.players.forEach { it.showBossBar(bossBar) }
 		
 		task = instance.scheduler().scheduleTask({
 			tick()
@@ -53,6 +66,10 @@ class Zone(
 	fun stop() {
 		task?.cancel()
 		task = null
+		
+		instance.players.forEach {
+			it.hideBossBar(bossBar)
+		}
 	}
 	
 	private fun tick() {
@@ -63,6 +80,8 @@ class Zone(
 				val progress = 1.0 - (timer.toDouble() / current.shrinkSec)
 				size = startSize + (current.size - startSize) * progress
 			}
+			
+			updateBossBar(current)
 			return
 		}
 		
@@ -70,30 +89,31 @@ class Zone(
 			size = current.size
 			isShrinking = false
 			
+			updateBossBar(current)
+			
 			val next = queue.removeFirstOrNull()
 			if (next == null) {
 				timer = Long.MAX_VALUE
-				instance.sendMessage(
+				
+				bossBar.name(
 					Component.text(
-						"마지막 자기장에 도달했습니다!",
+						"마지막 자기장",
 						NamedTextColor.DARK_RED
 					)
 				)
+				bossBar.progress(1.0f)
 				return
 			}
 			
 			phase = next
 			timer = phase!!.waitSec
-			instance.sendMessage(
-				Component.text(
-					"자기장 축소가 완료되었습니다. 다음 축소까지 ${timer}초 남았습니다.",
-					NamedTextColor.GREEN
-				)
-			)
+			
+			updateBossBar(phase!!)
 		} else {
 			isShrinking = true
 			timer = current.shrinkSec
 			startSize = size
+			
 			instance.sendGroupedPacket(
 				WorldBorderLerpSizePacket(
 					size,
@@ -101,12 +121,31 @@ class Zone(
 					current.shrinkSec * 20L
 				)
 			)
-			
-			instance.sendMessage(
+
+			updateBossBar(current)
+		}
+	}
+	
+	private fun updateBossBar(current: ZonePhase) {
+		if (isShrinking) {
+			bossBar.name(
 				Component.text(
-					"자기장 축소가 시작됩니다!",
+					"자기장 축소 중 · ${timer}초",
 					NamedTextColor.RED
 				)
+			)
+			bossBar.progress(
+				(timer.toFloat() / current.shrinkSec).coerceIn(0.0f, 1.0f)
+			)
+		} else {
+			bossBar.name(
+				Component.text(
+					"다음 축소까지 ${timer}초",
+					NamedTextColor.GREEN
+				)
+			)
+			bossBar.progress(
+				(timer.toFloat() / current.waitSec.coerceAtLeast(1)).coerceIn(0.0f, 1.0f)
 			)
 		}
 	}
