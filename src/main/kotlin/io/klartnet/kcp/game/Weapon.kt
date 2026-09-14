@@ -44,7 +44,7 @@ enum class Weapon(
 	SNIPER(
 		Material.SPYGLASS,
 		maxAmmo = 1,
-		maxRange = 150.0,
+		maxRange = 100.0,
 		reloadTicks = 5 * 20
 	) {
 		override fun onRelease(p: Player) {
@@ -337,7 +337,9 @@ private fun Entity.contains(point: Point): Boolean {
 		rel.y() in 0.0..boundingBox.height()
 }
 fun Player.onCooldown(material: Material): Boolean {
-	val cooldown = getTag(Tag.Long("cd_${material.name()}")) ?: 0L
+	val cooldown = getTag(
+		Tag.Long("cd_${material.name()}")
+	) ?: 0L
 
 	return cooldown > System.currentTimeMillis()
 }
