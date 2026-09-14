@@ -11,7 +11,8 @@ fun addDoorListeners(game: GameInstance) {
 	val node = game.instance.eventNode()
 
 	node.addListener(PlayerBlockInteractEvent::class.java) { event ->
-		if (event.hand != PlayerHand.MAIN || !game.isAlive(event.player)) return@addListener
+		val player = event.player
+		if (event.hand != PlayerHand.MAIN || !game.isAlive(player)) return@addListener
 		if (!event.block.name().endsWith("_door")) return@addListener
 		
 		val isUpper = event.block.getProperty("half") == "upper"
@@ -40,11 +41,11 @@ fun addDoorListeners(game: GameInstance) {
 			}
 
 			if (isBlocked) {
-				event.instance.playSound(
+				game.instance.playSound(
 					Sound.sound(
 						SoundEvent.BLOCK_WOODEN_DOOR_CLOSE,
 						Sound.Source.BLOCK,
-						1f, 1.8f
+						1.0f, 1.8f
 					),
 					lowerPos.x(),
 					lowerPos.y(),
@@ -65,23 +66,21 @@ fun addDoorListeners(game: GameInstance) {
 		)
 		
 		val isIron = event.block.name().contains("iron")
-		game.instance.players.forEach {
-			if (it != event.player)
-				it.playSound(
-					Sound.sound(
-						when {
-							isOpen ->
-								if (isIron) SoundEvent.BLOCK_IRON_DOOR_CLOSE
-								else SoundEvent.BLOCK_WOODEN_DOOR_CLOSE
-							else ->
-								if (isIron) SoundEvent.BLOCK_IRON_DOOR_OPEN
-								else SoundEvent.BLOCK_WOODEN_DOOR_OPEN
-						},
-						Sound.Source.BLOCK,
-						1f, 1f
-					),
-					lowerPos
-				)
-		}
+		game.instance.playSoundExcept(
+			player,
+			Sound.sound(
+				when {
+					isOpen ->
+						if (isIron) SoundEvent.BLOCK_IRON_DOOR_CLOSE
+						else SoundEvent.BLOCK_WOODEN_DOOR_CLOSE
+					else ->
+						if (isIron) SoundEvent.BLOCK_IRON_DOOR_OPEN
+						else SoundEvent.BLOCK_WOODEN_DOOR_OPEN
+				},
+				Sound.Source.BLOCK,
+				1.0f, 1.0f
+			),
+			lowerPos
+		)
 	}
 }

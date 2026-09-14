@@ -1,5 +1,6 @@
 package io.klartnet.kcp.game
 
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -25,10 +26,10 @@ enum class Weapon(
 	val reloadTicks: Int = 20,
 ) {
 	RIFLE(
-		Material.IRON_HOE,
+		Rifle.material(),
 		maxAmmo = 30,
 		maxRange = 50.0,
-		reloadTicks = 2 * 20
+		reloadTicks = 2 * 20,
 	) {
 		override fun onUse(p: Player) {
 			p.fireGun(
@@ -39,7 +40,7 @@ enum class Weapon(
 		}
 	},
 	SNIPER(
-		Material.SPYGLASS,
+		Sniper.material(),
 		maxAmmo = 1,
 		maxRange = 100.0,
 		reloadTicks = 5 * 20
@@ -52,8 +53,8 @@ enum class Weapon(
 			)
 		}
 	},
-	TRIDENT(
-		Material.DIAMOND_SPEAR,
+	RPG(
+		Rpg.material(),
 		maxAmmo = 0,
 		reloadTicks = 1 * 20
 	) {
@@ -136,8 +137,8 @@ private fun Player.shootRay(damage: Float, range: Double) {
 	)
 	
 	this.playWeaponSound(
-		SoundEvent.ENTITY_FIREWORK_ROCKET_BLAST,
-		1.0f
+		Key.key("guns:tacar_shoot"),
+		0.5f
 	)
 	
 	for (step in 1..(range * 2).toInt()) {
@@ -221,13 +222,7 @@ private fun Player.shootTrident(weapon: Weapon) {
 		eye.add(dir.mul(0.2))
 	)
 }
-private fun Player.playWeaponSound(weaponSound: WeaponSound) {
-	when (weaponSound) {
-		is WeaponSound.KeySound -> playWeaponSound(weaponSound.key, weaponSound.volume, weaponSound.pitch)
-		is WeaponSound.EventSound -> playWeaponSound(weaponSound.soundEvent, weaponSound.volume, weaponSound.pitch)
-	}
-}
-private fun Player.playWeaponSound(key: Key, volume: Float = 1f, pitch: Float = 1f) {
+private fun Player.playWeaponSound(key: Key, volume: Float = 0.5f, pitch: Float = 1f) {
 	if (instance == null) return
 
 	val sound = Sound.sound(
@@ -249,7 +244,7 @@ private fun Player.playWeaponSound(key: Key, volume: Float = 1f, pitch: Float = 
 		eye
 	)
 }
-private fun Player.playWeaponSound(soundEvent: SoundEvent, volume: Float = 1f, pitch: Float = 1f) {
+private fun Player.playWeaponSound(soundEvent: SoundEvent, volume: Float = 0.5f, pitch: Float = 1f) {
 	if (instance == null) return
 	
 	val sound = Sound.sound(

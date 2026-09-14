@@ -63,11 +63,11 @@ fun addHealListeners(game: GameInstance) {
 			)
 			player.health = (player.health + heal.healAmount).coerceAtMost(20.0f)
 
-			player.playSound(
+			game.instance.playSound(
 				Sound.sound(
 					SoundEvent.ENTITY_PLAYER_BURP,
 					Sound.Source.PLAYER,
-					1.0f, 1.2f
+					0.5f, 1.2f
 				)
 			)
 		}, TaskSchedule.seconds(heal.useSec), TaskSchedule.stop())

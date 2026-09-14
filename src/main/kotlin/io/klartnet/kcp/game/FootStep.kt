@@ -96,7 +96,7 @@ fun addFootstepListeners(game: GameInstance) {
 		val sound = Sound.sound(
 			blockSound.hitSound(),
 			Sound.Source.BLOCK,
-			blockSound.volume(), blockSound.pitch()
+			1.0f, blockSound.pitch()
 		)
 		
 		diggingTasks[player.uuid] = game.instance.scheduler().scheduleTask({
@@ -105,10 +105,11 @@ fun addFootstepListeners(game: GameInstance) {
 				return@scheduleTask
 			}
 			
-			game.instance.players.forEach { listener ->
-				if (listener != player)
-					listener.playSound(sound, position)
-			}
+			game.instance.playSoundExcept(
+				player,
+				sound,
+				position
+			)
 		}, TaskSchedule.immediate(), TaskSchedule.tick(4))
 	}
 	node.addListener(PlayerCancelDiggingEvent::class.java) { event ->
