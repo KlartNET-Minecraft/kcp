@@ -221,16 +221,44 @@ private fun Player.shootTrident(weapon: Weapon) {
 		eye.add(dir.mul(0.2))
 	)
 }
-private fun Player.playWeaponSound(soundEvent: SoundEvent, pitch: Float = 1f) {
+private fun Player.playWeaponSound(weaponSound: WeaponSound) {
+	when (weaponSound) {
+		is WeaponSound.KeySound -> playWeaponSound(weaponSound.key, weaponSound.volume, weaponSound.pitch)
+		is WeaponSound.EventSound -> playWeaponSound(weaponSound.soundEvent, weaponSound.volume, weaponSound.pitch)
+	}
+}
+private fun Player.playWeaponSound(key: Key, volume: Float = 1f, pitch: Float = 1f) {
+	if (instance == null) return
+
+	val sound = Sound.sound(
+		key,
+		Sound.Source.PLAYER,
+		volume, pitch
+	)
+
+	this.playSound(sound)
+
+	val eye = this.position.add(
+		0.0,
+		if (isSneaking) 1.27 else eyeHeight,
+		0.0
+	)
+	this.instance.playSoundExcept(
+		this,
+		sound,
+		eye
+	)
+}
+private fun Player.playWeaponSound(soundEvent: SoundEvent, volume: Float = 1f, pitch: Float = 1f) {
 	if (instance == null) return
 	
 	val sound = Sound.sound(
 		soundEvent,
 		Sound.Source.PLAYER,
-		1f, pitch
+		volume, pitch
 	)
 
-	playSound(sound)
+	this.playSound(sound)
 
 	val eye = this.position.add(
 		0.0,
