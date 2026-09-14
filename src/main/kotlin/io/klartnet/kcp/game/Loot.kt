@@ -20,7 +20,7 @@ import kotlin.random.Random
 private val lootTable = listOf(
 	ItemStack.of(Material.IRON_HOE) to 10,
 	ItemStack.of(Material.SPYGLASS) to 10,
-	ItemStack.of(Material.PAPER) to 50,
+	ItemStack.of(Material.PAPER) to 80,
 	ItemStack.of(Material.DIAMOND_SPEAR) to 1
 )
 
@@ -47,7 +47,7 @@ fun EventNode<InstanceEvent>.addLootListeners(game: GameInstance) {
 				InventoryType.CHEST_1_ROW,
 				Component.text("아이템 상자")
 			)
-			val itemCount = (3..7).random()
+			val itemCount = (3..5).random()
 			(0 until chest.size).shuffled().take(itemCount).forEach { slot ->
 				chest.setItemStack(slot, rollLoot())
 			}
