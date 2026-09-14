@@ -3,7 +3,9 @@ package io.klartnet.kcp.instances.game
 import io.github.togar2.pvp.feature.CombatFeatures
 import io.github.togar2.pvp.feature.FeatureType
 import io.github.togar2.pvp.utils.CombatVersion
-import io.klartnet.kcp.game.*
+import io.klartnet.kcp.game.MapType
+import io.klartnet.kcp.game.Minimap
+import io.klartnet.kcp.game.Zone
 import io.klartnet.kcp.instances.lobby.LobbyInstance
 import net.hollowcube.polar.PolarLoader
 import net.kyori.adventure.text.Component
@@ -14,7 +16,6 @@ import net.minestom.server.coordinate.Pos
 import net.minestom.server.coordinate.Vec
 import net.minestom.server.entity.GameMode
 import net.minestom.server.entity.Player
-import net.minestom.server.event.item.ItemDropEvent
 import net.minestom.server.event.player.PlayerDeathEvent
 import net.minestom.server.event.player.PlayerDisconnectEvent
 import net.minestom.server.event.player.PlayerSpawnEvent
@@ -22,8 +23,8 @@ import net.minestom.server.instance.block.Block
 import net.minestom.server.inventory.Inventory
 import net.minestom.server.inventory.InventoryType
 import net.minestom.server.network.packet.server.play.TeamsPacket
+import net.minestom.server.timer.Task
 import net.minestom.server.timer.TaskSchedule
-import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
@@ -43,7 +44,7 @@ class GameInstance(
 		.add(CombatFeatures.VANILLA_EXPLOSION)
 		.add(CombatFeatures.VANILLA_KNOCKBACK)
 		.build()
-	val noTagTeam = MinecraftServer.getTeamManager()
+	private val noTagTeam = MinecraftServer.getTeamManager()
 		.let { tm ->
 			tm.getTeam("no_tag") ?: tm.createBuilder("no_tag")
 				.nameTagVisibility(TeamsPacket.NameTagVisibility.NEVER)
@@ -59,22 +60,33 @@ class GameInstance(
 			chunkLoader = PolarLoader(map.createWorld())
 			explosionSupplier = featureSet.get(FeatureType.EXPLOSION).explosionSupplier
 		}
-	private val minimap = Minimap(id, map.spawnPos, map.phases.first().size, map.mmapBytes)
+	
+	private val minimap = Minimap(
+		id,
+		map.spawnPos,
+		map.phases.first().size,
+		map.mmapBytes
+	)
 	private val zone = Zone(instance, map.spawnPos, map.phases) { center, size ->
 		minimap.render(instance.players, center, size)
 	}
 	
-	private val alivePlayers = mutableSetOf<UUID>()
-	val playerCount: Int get() = instance.players.size
+	private val players = GamePlayers()
+	private val events = GameEvents(this)
+	
+	private var endTask: Task? = null
+	
+	val playerCount: Int
+		get() = instance.players.size
 
-	val containers = mutableMapOf<String, Inventory>()
+	val containers = GameContainers()
 	
 	init {
-		bindEvents()
+		events.register(instance.eventNode())
 	}
 
 	fun isAlive(player: Player): Boolean =
-		alivePlayers.contains(player.uuid)
+		players.isAlive(player)
 	
 	fun join(player: Player): Boolean {
 		if (state != GameState.WAITING || playerCount >= maxPlayers)
@@ -90,11 +102,12 @@ class GameInstance(
 				)
 			)
 		}
+		
 		return true
 	}
 	fun leave(player: Player): CompletableFuture<Void?>? {
 		player.team = null
-		
+		zone.hideBossBar(player)
 		eliminatePlayer(player, "게임을 떠났습니다.")
 		
 		return player.setInstance(
@@ -107,18 +120,19 @@ class GameInstance(
 		if (state != GameState.WAITING || playerCount == 0) return
 		
 		state = GameState.RUNNING
-		alivePlayers.clear()
-		alivePlayers.addAll(instance.players.map { it.uuid })
+		players.reset(instance.players)
 		
-		for (player in instance.players) {
+		instance.players.forEach { player ->
 			player.gameMode = GameMode.SURVIVAL
 			
 			player.teleport(getRandomAirPos()).thenRun {
 				player.team = noTagTeam
-
 				minimap.give(player)
 
 				instance.scheduler().scheduleNextTick {
+					if (state != GameState.RUNNING)
+						return@scheduleNextTick
+					
 					player.entityMeta.isFlyingWithElytra = true
 				}
 			}
@@ -127,15 +141,34 @@ class GameInstance(
 		zone.start()
 	}
 	
+	fun onPlayerSpawn(event: PlayerSpawnEvent) {
+		val player = event.player
+		
+		player.respawnPoint = map.spawnPos	
+		player.gameMode = GameMode.SPECTATOR
+		player.health = 20.0f
+		player.inventory.clear()
+	}
+	
+	fun onPlayerDeath(event: PlayerDeathEvent) {
+		eliminatePlayer(event.player, "사망했습니다.")
+	}
+	
+	fun onPlayerDisconnect(event: PlayerDisconnectEvent) {
+		leave(event.player)
+	}
+	
 	private fun eliminatePlayer(player: Player, reason: String) {
-		if (!alivePlayers.remove(player.uuid)) return
+		if (!players.eliminate(player))
+			return
 
 		spawnDeathChest(player)
 
 		player.gameMode = GameMode.SPECTATOR
+		
 		instance.sendMessage(
 			Component.text(
-				"${player.username}님이 $reason (${alivePlayers.size}명 남음)"
+				"${player.username}님이 $reason (${players.aliveCount}명 남음)"
 			)
 		)
 
@@ -143,14 +176,12 @@ class GameInstance(
 	}
 	
 	private fun checkWinner() {
-		if (state != GameState.RUNNING || alivePlayers.size > 1) return
+		if (state != GameState.RUNNING || players.aliveCount > 1)
+			return
 		
 		state = GameState.ENDING
 		
-		val winner = alivePlayers.firstOrNull()?.let {
-			MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(it)
-		}
-		
+		val winner = instance.players.firstOrNull { players.isAlive(it) }
 		if (winner != null) {
 			instance.showTitle(
 				Title.title(
@@ -173,7 +204,8 @@ class GameInstance(
 			)
 		}
 		
-		instance.scheduler().scheduleTask({
+		endTask = instance.scheduler().scheduleTask({
+			endTask = null
 			destroy()
 		}, TaskSchedule.seconds(5), TaskSchedule.stop())
 	}
@@ -193,9 +225,7 @@ class GameInstance(
 	}
 	
 	private fun destroy() {
-		zone.stop()
-		
-		containers.clear()
+		stop()
 		
 		val transfers = instance.players.map { player ->
 			leave(player)
@@ -206,62 +236,38 @@ class GameInstance(
 			GameManager.remove(id)
 		}
 	}
+	
+	private fun stop() {
+		endTask?.cancel()
+		endTask = null
+		
+		zone.stop()
+		players.clear()
+		containers.clear()
+	}
 
 	private fun spawnDeathChest(player: Player) {
 		val items = player.inventory.itemStacks.filter { !it.isAir }
-		if (items.isEmpty()) return
+		if (items.isEmpty())
+			return
 
-		val p = player.position
-		val key = "${p.blockX()}_${p.blockY()}_${p.blockZ()}"
+		val pp = player.position
 		val blockPos = Vec(
-			p.blockX().toDouble(),
-			p.blockY().toDouble(),
-			p.blockZ().toDouble()
+			pp.blockX().toDouble(),
+			pp.blockY().toDouble(),
+			pp.blockZ().toDouble()
 		)
 		instance.setBlock(blockPos, Block.CHEST)
 
-		val inv = Inventory(
-			InventoryType.CHEST_3_ROW,
-			Component.text(player.username)
-		)
-		items.take(inv.size).forEachIndexed { i, item ->
-			inv.setItemStack(i, item)
-		}
-		containers[key] = inv
-	}
-	
-	private fun bindEvents() {
-		instance.eventNode().apply {
-			addListener(PlayerSpawnEvent::class.java) { event ->
-				val player = event.player
-				
-				player.respawnPoint = map.spawnPos
-				
-				player.gameMode = GameMode.SPECTATOR
-				player.health = 20.0F
-				player.inventory.clear()
+		containers.getOrCreate(blockPos) {
+			Inventory(
+				InventoryType.CHEST_1_ROW,
+				Component.text(player.username)
+			)
+		}.also { inventory ->
+			items.take(inventory.size).forEachIndexed { i, item ->
+				inventory.setItemStack(i, item)
 			}
-	
-			addListener(ItemDropEvent::class.java) { event ->
-				event.isCancelled = true
-			}
-			addListener(PlayerDeathEvent::class.java) { event ->
-				event.chatMessage = null
-	
-				eliminatePlayer(event.player, "사망했습니다.")
-			}
-			addListener(PlayerDisconnectEvent::class.java) { event ->
-				leave(event.player)
-			}
-	
-			addFootstepListeners(this@GameInstance)
-			addDoorListeners(this@GameInstance)
-			addCombatListeners(this@GameInstance)
-			addHealListeners(this@GameInstance)
-			addLootListeners(this@GameInstance)
-			addDropListeners(this@GameInstance)
-				
-			addChild(featureSet.createNode())
 		}
 	}
 }

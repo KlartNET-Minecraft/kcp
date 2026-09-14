@@ -2,17 +2,17 @@ package io.klartnet.kcp.game
 
 import io.klartnet.kcp.instances.game.GameInstance
 import net.kyori.adventure.text.Component
-import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.*
-import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.item.Material
 import net.minestom.server.network.packet.client.play.ClientPlayerActionPacket
 import net.minestom.server.tag.Tag
 
 private val LASER_TAG = Tag.Long("laser")
 
-fun EventNode<InstanceEvent>.addCombatListeners(game: GameInstance) {
-	addListener(PlayerUseItemEvent::class.java) { event ->
+fun addCombatListeners(game: GameInstance) {
+	val node = game.instance.eventNode()
+	
+	node.addListener(PlayerUseItemEvent::class.java) { event ->
 		val player = event.player
 		if (!game.isAlive(player)) return@addListener
 		
@@ -24,7 +24,7 @@ fun EventNode<InstanceEvent>.addCombatListeners(game: GameInstance) {
 		weapon.onUse(player)
 	}
 	
-	addListener(PlayerMoveEvent::class.java) { event ->
+	node.addListener(PlayerMoveEvent::class.java) { event ->
 		val player = event.player
 		val weapon = player.heldWeapon() ?: return@addListener
 		if (!game.isAlive(player) || weapon.material != Material.SPYGLASS) return@addListener
@@ -38,7 +38,7 @@ fun EventNode<InstanceEvent>.addCombatListeners(game: GameInstance) {
 		)
 	}
 
-	addListener(PlayerPacketEvent::class.java) { event ->
+	node.addListener(PlayerPacketEvent::class.java) { event ->
 		val packet = event.packet as? ClientPlayerActionPacket ?: return@addListener
 		if (packet.status.ordinal == 5 && game.isAlive(event.player)) {
 			val player = event.player
@@ -47,21 +47,21 @@ fun EventNode<InstanceEvent>.addCombatListeners(game: GameInstance) {
 		}
 	}
 	
-	addListener(PlayerHandAnimationEvent::class.java) { event ->
+	node.addListener(PlayerHandAnimationEvent::class.java) { event ->
 		val player = event.player
 		
 		if (game.isAlive(player))
 			player.heldWeapon()?.onSwing(player)
 	}
 
-	addListener(PlayerSwapItemEvent::class.java) { event ->
+	node.addListener(PlayerSwapItemEvent::class.java) { event ->
 		event.isCancelled = true
 		val player = event.player
 		if (game.isAlive(player))
 			player.heldWeapon()?.onReload(player) ?: player.sendActionBar(Component.empty())
 	}
 	
-	addListener(PlayerChangeHeldSlotEvent::class.java) { event ->
+	node.addListener(PlayerChangeHeldSlotEvent::class.java) { event ->
 		val player = event.player
 		game.instance.scheduler().scheduleNextTick {
 			player.heldWeapon()?.onHold(player) ?: player.sendActionBar(Component.empty())

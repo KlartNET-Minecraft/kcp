@@ -1,6 +1,7 @@
 package io.klartnet.kcp.game
 
 import net.minestom.server.component.DataComponents
+import net.minestom.server.coordinate.Point
 import net.minestom.server.coordinate.Pos
 import net.minestom.server.entity.Player
 import net.minestom.server.instance.Instance
@@ -61,7 +62,7 @@ class Minimap(
 	// 1초 스케줄러에서 1회 호출: 테두리 1회 복사 후 모든 플레이어 패킷 일괄 전송
 	fun render(
 		players: Collection<Player>,
-		zoneCenter: Pos,
+		zoneCenter: Point,
 		zoneSize: Double
 	) {
 		val buffer = terrainBytes.clone()
@@ -70,10 +71,10 @@ class Minimap(
 
 		// 현재 자기장 빨간색 테두리 (2px)
 		val half = zoneSize / 2.0
-		val minX = (((zoneCenter.x - half - startX) / mapSize) * 128).toInt().coerceIn(0, 127)
-		val maxX = (((zoneCenter.x + half - startX) / mapSize) * 128).toInt().coerceIn(0, 127)
-		val minZ = (((zoneCenter.z - half - startZ) / mapSize) * 128).toInt().coerceIn(0, 127)
-		val maxZ = (((zoneCenter.z + half - startZ) / mapSize) * 128).toInt().coerceIn(0, 127)
+		val minX = (((zoneCenter.x() - half - startX) / mapSize) * 128).toInt().coerceIn(0, 127)
+		val maxX = (((zoneCenter.x() + half - startX) / mapSize) * 128).toInt().coerceIn(0, 127)
+		val minZ = (((zoneCenter.z() - half - startZ) / mapSize) * 128).toInt().coerceIn(0, 127)
+		val maxZ = (((zoneCenter.z() + half - startZ) / mapSize) * 128).toInt().coerceIn(0, 127)
 		val red: Byte = 18
 
 		for (x in minX..maxX) {

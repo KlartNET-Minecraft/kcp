@@ -3,22 +3,19 @@ package io.klartnet.kcp.game
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.minestom.server.collision.Aerodynamics
 import net.minestom.server.coordinate.Point
 import net.minestom.server.coordinate.Vec
-import net.minestom.server.entity.*
+import net.minestom.server.entity.Entity
+import net.minestom.server.entity.LivingEntity
+import net.minestom.server.entity.Player
 import net.minestom.server.entity.damage.Damage
 import net.minestom.server.entity.damage.DamageType
-import net.minestom.server.event.entity.EntityTickEvent
-import net.minestom.server.event.entity.projectile.ProjectileCollideWithBlockEvent
-import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEvent
 import net.minestom.server.item.Material
 import net.minestom.server.network.packet.server.play.ParticlePacket
 import net.minestom.server.network.packet.server.play.SetCooldownPacket
 import net.minestom.server.particle.Particle
 import net.minestom.server.sound.SoundEvent
 import net.minestom.server.tag.Tag
-import java.time.Duration
 import kotlin.math.abs
 
 enum class Weapon(
@@ -140,7 +137,7 @@ private fun Player.shootRay(damage: Float, range: Double) {
 	
 	this.playWeaponSound(
 		SoundEvent.ENTITY_FIREWORK_ROCKET_BLAST,
-		1.8f
+		1.0f
 	)
 	
 	for (step in 1..(range * 2).toInt()) {
@@ -154,7 +151,7 @@ private fun Player.shootRay(damage: Float, range: Double) {
 				Sound.sound(
 					blockSound.breakSound(),
 					Sound.Source.BLOCK,
-					0.5f, 1.0f
+					0.8f, 1.0f
 				),
 				point
 			)
@@ -200,6 +197,7 @@ private fun Player.shootRay(damage: Float, range: Double) {
 private fun Player.shootTrident(weapon: Weapon) {
 	if (this.instance == null) return
 	if (this.onCooldown(weapon.material)) return
+	
 	if (this.itemInMainHand.material() == weapon.material)
 		this.itemInMainHand = itemInMainHand.consume(1)
 
@@ -214,70 +212,14 @@ private fun Player.shootTrident(weapon: Weapon) {
 		if (isSneaking) 1.27 else eyeHeight,
 		0.0
 	)
-	val spawnPos = eye.add(dir.mul(0.2))
-
-	val aerodyn = Aerodynamics(0.00, 0.99, 0.99)
-	val vel = dir.mul(40.0)
-
-	val trident = EntityProjectile(
-		this,
-		EntityType.TRIDENT
-	).apply {
-		aerodynamics = aerodyn
-		velocity = vel
-		setNoGravity(true)
-		
-		setBoundingBox(0.1, 0.1, 0.1)
-
-		scheduleRemove(Duration.ofSeconds(3))
+	
+	val trident = Trident(this).apply {
+		velocity = dir.mul(40.0)
 	}
-
-	val node = trident.eventNode()
-	node.addListener(EntityTickEvent::class.java) {
-		trident.instance.sendGroupedPacket(
-			ParticlePacket(
-				Particle.SONIC_BOOM,
-				trident.position,
-				Vec.ZERO,
-				0f,
-				1
-			)
-		)
-	}
-	node.addListener(ProjectileCollideWithBlockEvent::class.java) {
-		trident.instance.explode(
-			it.collisionPosition.x.toFloat(),
-			it.collisionPosition.y.toFloat(),
-			it.collisionPosition.z.toFloat(),
-			5f
-		)
-
-		trident.remove()
-	}
-	node.addListener(ProjectileCollideWithEntityEvent::class.java) { event ->
-		val target = event.target as? Player ?: return@addListener
-		target.damage(
-			Damage(
-				DamageType.TRIDENT,
-				null,
-				this,
-				null,
-				8.0f
-			)
-		)
-
-		this.playSound(
-			Sound.sound(
-				SoundEvent.ENTITY_ARROW_HIT_PLAYER,
-				Sound.Source.PLAYER,
-				2.5f,
-				1.0f
-			)
-		)
-
-		trident.remove()
-	}
-	trident.setInstance(this.instance, spawnPos)
+	trident.setInstance(
+		this.instance,
+		eye.add(dir.mul(0.2))
+	)
 }
 private fun Player.playWeaponSound(soundEvent: SoundEvent, pitch: Float = 1f) {
 	if (instance == null) return
@@ -285,8 +227,7 @@ private fun Player.playWeaponSound(soundEvent: SoundEvent, pitch: Float = 1f) {
 	val sound = Sound.sound(
 		soundEvent,
 		Sound.Source.PLAYER,
-		1f,
-		pitch
+		1f, pitch
 	)
 
 	playSound(sound)

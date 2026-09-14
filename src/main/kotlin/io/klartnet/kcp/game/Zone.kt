@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.coordinate.Pos
 import net.minestom.server.entity.GameMode
+import net.minestom.server.entity.Player
 import net.minestom.server.entity.damage.Damage
 import net.minestom.server.entity.damage.DamageType
 import net.minestom.server.instance.InstanceContainer
@@ -43,11 +44,11 @@ class Zone(
 	
 	private val bossBar = BossBar.bossBar(
 		Component.text(
-			"자기장 준비 중",
-			NamedTextColor.GREEN
+			"null",
+			NamedTextColor.RED
 		),
 		1.0f,
-		BossBar.Color.GREEN,
+		BossBar.Color.RED,
 		BossBar.Overlay.PROGRESS
 	)
 	
@@ -67,9 +68,7 @@ class Zone(
 		task?.cancel()
 		task = null
 		
-		instance.players.forEach {
-			it.hideBossBar(bossBar)
-		}
+		instance.players.forEach { it.hideBossBar(bossBar) }
 	}
 	
 	private fun tick() {
@@ -126,6 +125,9 @@ class Zone(
 		}
 	}
 	
+	fun hideBossBar(player: Player) {
+		player.hideBossBar(bossBar)
+	}
 	private fun updateBossBar(current: ZonePhase) {
 		if (isShrinking) {
 			bossBar.name(
@@ -136,6 +138,9 @@ class Zone(
 			)
 			bossBar.progress(
 				(timer.toFloat() / current.shrinkSec).coerceIn(0.0f, 1.0f)
+			)
+			bossBar.color(
+				BossBar.Color.RED
 			)
 		} else {
 			bossBar.name(

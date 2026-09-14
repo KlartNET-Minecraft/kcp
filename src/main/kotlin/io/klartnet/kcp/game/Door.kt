@@ -3,14 +3,14 @@ package io.klartnet.kcp.game
 import io.klartnet.kcp.instances.game.GameInstance
 import net.kyori.adventure.sound.Sound
 import net.minestom.server.entity.PlayerHand
-import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.PlayerBlockInteractEvent
-import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.sound.SoundEvent
 import kotlin.math.abs
 
-fun EventNode<InstanceEvent>.addDoorListeners(game: GameInstance) {
-	addListener(PlayerBlockInteractEvent::class.java) { event ->
+fun addDoorListeners(game: GameInstance) {
+	val node = game.instance.eventNode()
+
+	node.addListener(PlayerBlockInteractEvent::class.java) { event ->
 		if (event.hand != PlayerHand.MAIN || !game.isAlive(event.player)) return@addListener
 		if (!event.block.name().endsWith("_door")) return@addListener
 		
@@ -40,7 +40,7 @@ fun EventNode<InstanceEvent>.addDoorListeners(game: GameInstance) {
 			}
 
 			if (isBlocked) {
-				event.player.playSound(
+				event.instance.playSound(
 					Sound.sound(
 						SoundEvent.BLOCK_WOODEN_DOOR_CLOSE,
 						Sound.Source.BLOCK,

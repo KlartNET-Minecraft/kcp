@@ -5,10 +5,8 @@ import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.entity.PlayerHand
-import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.PlayerBlockInteractEvent
 import net.minestom.server.event.player.PlayerMoveEvent
-import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.instance.block.Block
 import net.minestom.server.inventory.Inventory
 import net.minestom.server.inventory.InventoryType
@@ -20,7 +18,7 @@ import kotlin.random.Random
 private val lootTable = listOf(
 	ItemStack.of(Material.IRON_HOE) to 10,
 	ItemStack.of(Material.SPYGLASS) to 10,
-	ItemStack.of(Material.PAPER) to 80,
+	ItemStack.of(Material.PAPER) to 70,
 	ItemStack.of(Material.DIAMOND_SPEAR) to 1
 )
 
@@ -35,41 +33,48 @@ private fun rollLoot(): ItemStack {
 	return lootTable.first().first
 }
 
-fun EventNode<InstanceEvent>.addLootListeners(game: GameInstance) {
-	addListener(PlayerBlockInteractEvent::class.java) { event ->
+fun addLootListeners(game: GameInstance) {
+	val node = game.instance.eventNode()
+	
+	node.addListener(PlayerBlockInteractEvent::class.java) { event ->
 		if (event.hand != PlayerHand.MAIN || !game.isAlive(event.player)) return@addListener
 		if (!event.block.compare(Block.CHEST) && !event.block.compare(Block.TRAPPED_CHEST)) return@addListener
 		
-		val p = event.blockPosition
-		val key = "${p.blockX()}_${p.blockY()}_${p.blockZ()}"
-		val inv = game.containers.computeIfAbsent(key) {
-			val chest = Inventory(
+		val blockPos = event.blockPosition
+		val inventory = game.containers.getOrCreate(blockPos) {
+			Inventory(
 				InventoryType.CHEST_1_ROW,
 				Component.text("아이템 상자")
-			)
-			val itemCount = (3..4).random()
-			(0 until chest.size).shuffled().take(itemCount).forEach { slot ->
-				chest.setItemStack(slot, rollLoot())
+			).apply {
+				val itemCount = (3..4).random()
+				(0 until this.size)
+					.shuffled()
+					.take(itemCount)
+					.forEach { slot ->
+						this.setItemStack(slot, rollLoot())
+					}
 			}
-			chest
 		}
-
+		
 		val player = event.player
-		player.openInventory(inv)
+		player.openInventory(inventory)
 		player.playSound(
 			Sound.sound(
 				SoundEvent.BLOCK_CHEST_OPEN,
 				Sound.Source.BLOCK,
 				1f, 1f
 			),
-			p.x(),
-			p.y(),
-			p.z()
+			blockPos.x(),
+			blockPos.y(),
+			blockPos.z()
 		)
 	}
 }
-fun EventNode<InstanceEvent>.addDropListeners(game: GameInstance) {
-	addListener(PlayerMoveEvent::class.java) { event ->
+
+fun addDropListeners(game: GameInstance) {
+	val node = game.instance.eventNode()
+	
+	node.addListener(PlayerMoveEvent::class.java) { event ->
 		val player = event.player
 		if (event.newPosition.sameBlock(player.position))
 			return@addListener

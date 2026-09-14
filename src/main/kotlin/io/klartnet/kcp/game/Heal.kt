@@ -4,9 +4,7 @@ import io.klartnet.kcp.instances.game.GameInstance
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.PlayerUseItemEvent
-import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.item.Material
 import net.minestom.server.sound.SoundEvent
 import net.minestom.server.tag.Tag
@@ -33,8 +31,10 @@ enum class Heal(
 
 private val HEALING_TAG = Tag.Boolean("is_healing")
 
-fun EventNode<InstanceEvent>.addHealListeners(game: GameInstance) {
-	addListener(PlayerUseItemEvent::class.java) { event ->
+fun addHealListeners(game: GameInstance) {
+	val node = game.instance.eventNode()
+	
+	node.addListener(PlayerUseItemEvent::class.java) { event ->
 		val player = event.player
 		if (!game.isAlive(player)) return@addListener
 		
