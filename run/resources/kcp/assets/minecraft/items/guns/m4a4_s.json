@@ -1,0 +1,7 @@
+{
+	"model": {
+	  "type": "minecraft:model",
+	  "model": "minecraft:item/models/m4a4_s"
+	},
+	"hand_animation_on_swap": false
+  }

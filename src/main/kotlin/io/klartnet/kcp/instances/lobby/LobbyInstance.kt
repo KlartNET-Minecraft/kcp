@@ -1,6 +1,6 @@
 package io.klartnet.kcp.instances.lobby
 
-import io.klartnet.kcp.game.MapType
+import io.klartnet.kcp.instances.game.event.MapType
 import net.hollowcube.polar.PolarLoader
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title

@@ -6,9 +6,9 @@ import net.minestom.server.MinecraftServer
 import net.minestom.server.tag.Tag
 import net.minestom.server.timer.TaskSchedule
 
-val DEBUGGER_TAG = Tag.Boolean("DEBUGGER")
+internal val DEBUGGER_TAG = Tag.Boolean("DEBUGGER")
 
-fun startDebugMonitor() {
+internal fun watchDebugMode() {
 	val runtime = Runtime.getRuntime()
 	MinecraftServer.getSchedulerManager().scheduleTask({
 		val debuggers = MinecraftServer

@@ -3,9 +3,8 @@ package io.klartnet.kcp.instances.game
 import io.github.togar2.pvp.feature.CombatFeatures
 import io.github.togar2.pvp.feature.FeatureType
 import io.github.togar2.pvp.utils.CombatVersion
-import io.klartnet.kcp.game.MapType
-import io.klartnet.kcp.game.Minimap
-import io.klartnet.kcp.game.Zone
+import io.klartnet.kcp.instances.game.event.Game
+import io.klartnet.kcp.instances.game.event.MapType
 import io.klartnet.kcp.instances.lobby.LobbyInstance
 import net.hollowcube.polar.PolarLoader
 import net.kyori.adventure.text.Component
@@ -72,7 +71,6 @@ class GameInstance(
 	}
 	
 	private val players = GamePlayers()
-	private val events = GameEvents(this)
 	
 	private var endTask: Task? = null
 	
@@ -82,7 +80,7 @@ class GameInstance(
 	val containers = GameContainers()
 	
 	init {
-		events.register(instance.eventNode())
+		Game.register(this)
 	}
 
 	fun isAlive(player: Player): Boolean =

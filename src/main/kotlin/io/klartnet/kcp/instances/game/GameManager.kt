@@ -1,6 +1,6 @@
 package io.klartnet.kcp.instances.game
 
-import io.klartnet.kcp.game.MapType
+import io.klartnet.kcp.instances.game.event.MapType
 import net.minestom.server.entity.Player
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger

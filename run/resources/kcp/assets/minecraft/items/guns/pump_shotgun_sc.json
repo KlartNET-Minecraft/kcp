@@ -1,0 +1,7 @@
+{
+	"model": {
+	  "type": "minecraft:model",
+	  "model": "minecraft:item/models/pump_shotgun_sc"
+	},
+	"hand_animation_on_swap": false
+  }

@@ -1,0 +1,554 @@
+{
+	"mini_shoot": {
+		"subtitle":"Shoot Minigun",
+		"sounds": [
+			"guns:mini_shoot"
+		]
+	},
+	"mini_idle": {
+		"subtitle":"Idle Minigun",
+		"sounds": [
+			"guns:mini_idle"
+		]
+	},
+	"mini_no_ammo": {
+		"subtitle":"No More Ammo",
+		"sounds": [
+			"guns:mini_no_ammo"
+		]
+	},
+	"mini_spin": {
+		"subtitle":"Minigun Spinning",
+		"sounds": [
+			"guns:mini_spin"
+		]
+	},
+	"mini_stop": {
+		"subtitle":"Stop Spraying",
+		"sounds": [
+			"guns:mini_stop"
+		]
+	},
+	"tommy_shoot": {
+		"subtitle":"Tommy Shoot",
+		"sounds": [
+			"guns:tommy_shoot"
+		]
+	},
+	"tommy_reload": {
+		"subtitle":"Tommy Reload",
+		"sounds": [
+			"guns:tommy_reload"
+		]
+	},
+	"m1_shoot": {
+		"subtitle":"M1 Shoot",
+		"sounds": [
+			"guns:m1_shoot"
+		]
+	},
+	"m1_reload": {
+		"subtitle":"M1 Reload",
+		"sounds": [
+			"guns:m1_reload"
+		]
+	},
+	"flare_shoot": {
+		"subtitle":"Flare Shoot",
+		"sounds": [
+			"guns:flare_shoot"
+		]
+	},
+	"flare_explode": {
+		"subtitle":"Flare Explode",
+		"sounds": [
+			"guns:flare_explode"
+		]
+	},
+	"flare_reload": {
+		"subtitle":"Flare Reload",
+		"sounds": [
+			"guns:flare_reload"
+		]
+	},
+	"p90_reload": {
+		"subtitle":"P90 Reload",
+		"sounds": [
+			"guns:p90_reload"
+		]
+	},
+	"p90_shoot": {
+		"subtitle":"P90 Shoot",
+		"sounds": [
+			"guns:p90_shoot"
+		]
+	},
+	"pump_reload": {
+		"subtitle":"Pump Reload",
+		"sounds": [
+			"guns:pump_reload"
+		]
+	},
+	"pump_shoot": {
+		"subtitle":"Pump Shoot",
+		"sounds": [
+			"guns:pump_shoot"
+		]
+	},
+	"pump_rack": {
+		"subtitle":"Pump Shotgun Rack",
+		"sounds": [
+			"guns:pump_rack"
+		]
+	},
+	"revolver_reload": {
+		"subtitle":"Revolver Reload",
+		"sounds": [
+			"guns:revolver_reload"
+		]
+	},
+	"revolver_shoot": {
+		"subtitle":"Revolver Shoot",
+		"sounds": [
+			"guns:revolver_shoot"
+		]
+	},
+	"awp_shoot": {
+		"subtitle":"AWP Shoot",
+		"sounds": [
+			"guns:awp_shoot"
+		]
+	},
+	"awp_reload": {
+		"subtitle":"AWP reload",
+		"sounds": [
+			"guns:awp_reload"
+		]
+	},
+	"musket_shoot": {
+		"subtitle":"Musket Shoot",
+		"sounds": [
+			"guns:musket_shoot"
+		]
+	},
+	"ray_shoot": {
+		"subtitle":"Ray Shoot",
+		"sounds": [
+			"guns:ray_shoot"
+		]
+	},
+	"ray_reload": {
+		"subtitle":"Ray Reload",
+		"sounds": [
+			"guns:ray_reload"
+		]
+	},
+	"dualies_reload": {
+		"subtitle":"Dualies Reload",
+		"sounds": [
+			"guns:dualies_reload"
+		]
+	},	
+	"dualies_shoot": {
+		"subtitle":"Dualies Shoot",
+		"sounds": [
+			"guns:dualies_shoot"
+		]
+	},
+	"ar_shoot": {
+		"subtitle":"AR Shoot",
+		"sounds": [
+			"guns:ar_shoot"
+		]
+	},
+	"ar_reload": {
+		"subtitle":"AR Reload",
+		"sounds": [
+			"guns:ar_reload"
+		]
+	},
+	"six_reload": {
+		"subtitle":"Six Shooter Reload",
+		"sounds": [
+			"guns:six_reload"
+		]
+	},
+	"six_shoot": {
+		"subtitle":"Six Shooter Shoot",
+		"sounds": [
+			"guns:six_shoot"
+		]
+	},
+	"pistol_shoot": {
+		"subtitle":"Pistol Shooter Shoot",
+		"sounds": [
+			"guns:pistol_shoot"
+		]
+	},
+	"pistol_reload": {
+		"subtitle":"Pistol Shooter Reload",
+		"sounds": [
+			"guns:pistol_reload"
+		]
+	},
+	"rocket_reload": {
+		"subtitle":"RPG Reload",
+		"sounds": [
+			"guns:rocket_reload"
+		]
+	},
+	"rocket_shoot": {
+		"subtitle":"RPG Shoot",
+		"sounds": [
+			"guns:rocket_shoot"
+		]
+	},
+	"rocket_trail": {
+		"subtitle":"RPG Trail",
+		"sounds": [
+			"guns:rocket_trail"
+		]
+	},
+	"tacar_shoot": {
+		"subtitle":"Tac AR Shoot",
+		"sounds": [
+			"guns:tacar_shoot"
+		]
+	},
+	"tacar_reload": {
+		"subtitle":"Tac AR Reload",
+		"sounds": [
+			"guns:tacar_reload"
+		]
+	},
+	"hunting_shoot": {
+		"subtitle":"Hunting Rifle Shoot",
+		"sounds": [
+			"guns:hunting_shoot"
+		]
+	},
+	"hunting_reload": {
+		"subtitle":"Hunting Rifle Reload",
+		"sounds": [
+			"guns:hunting_reload"
+		]
+	},
+	"ak_shoot": {
+		"subtitle":"AK Shoot",
+		"sounds": [
+			"guns:ak_shoot"
+		]
+	},
+	"ak_reload": {
+		"subtitle":"AK Reload",
+		"sounds": [
+			"guns:ak_reload"
+		]
+	},
+	"lmg_shoot": {
+		"subtitle":"LMG Shoot",
+		"sounds": [
+			"guns:lmg_shoot"
+		]
+	},
+	"lmg_reload": {
+		"subtitle":"LMG Reload",
+		"sounds": [
+			"guns:lmg_reload"
+		]
+	},
+	"deagle_shoot": {
+		"subtitle":"Deagle Shoot",
+		"sounds": [
+			"guns:deagle_shoot"
+		]
+	},
+	"deagle_reload": {
+		"subtitle":"Deagle Reload",
+		"sounds": [
+			"guns:deagle_reload"
+		]
+	},
+	"hunting_reload_s": {
+		"subtitle":"Suppressed Hunting Reload",
+		"sounds": [
+			"guns:hunting_reload_s"
+		]
+	},
+	"hunting_shoot_s": {
+		"subtitle":"Suppressed Hunting Shoot",
+		"sounds": [
+			"guns:hunting_shoot_s"
+		]
+	},
+	"awp_reload_s": {
+		"subtitle":"Suppressed AWP Reload",
+		"sounds": [
+			"guns:awp_reload_s"
+		]
+	},
+	"awp_shoot_s": {
+		"subtitle":"Suppressed AWP Shoot",
+		"sounds": [
+			"guns:awp_shoot_s"
+		]
+	},
+	"ar_reload_s": {
+		"subtitle":"Suppressed AR Reload",
+		"sounds": [
+			"guns:ar_reload_s"
+		]
+	},
+	"ar_shoot_s": {
+		"subtitle":"Suppressed AR Shoot",
+		"sounds": [
+			"guns:ar_shoot_s"
+		]
+	},
+	"sgg_reload_s": {
+		"subtitle":"Suppressed SGG Reload",
+		"sounds": [
+			"guns:sgg_reload_s"
+		]
+	},
+	"sgg_shoot_s": {
+		"subtitle":"Suppressed SGG Shoot",
+		"sounds": [
+			"guns:sgg_shoot_s"
+		]
+	},
+	"pistol_reload_s": {
+		"subtitle":"Suppressed Pistol Reload",
+		"sounds": [
+			"guns:pistol_reload_s"
+		]
+	},
+	"pistol_shoot_s": {
+		"subtitle":"Suppressed Pistol Shoot",
+		"sounds": [
+			"guns:pistol_shoot_s"
+		]
+	},
+	"grenade_reload": {
+		"subtitle":"Grenade Launcher Reload",
+		"sounds": [
+			"guns:grenade_reload"
+		]
+	},
+	"dragon_shoot": {
+		"subtitle":"Dragon's Breath Sniper Shoot",
+		"sounds": [
+			"guns:dragon_shoot"
+		]
+	},
+	"grenade_shoot": {
+		"subtitle":"Grenade Launcher Shoot",
+		"sounds": [
+			"guns:grenade_shoot"
+		]
+	},
+	"quad_shoot": {
+		"subtitle":"Quad Launcer Shoot",
+		"sounds": [
+			"guns:quad_shoot"
+		]
+	},
+	"quad_reload": {
+		"subtitle":"Quad Launcher Reload",
+		"sounds": [
+			"guns:quad_reload"
+		]
+	},
+	"tacshotgun_reload": {
+		"subtitle":"Tactical Shotgun Reload",
+		"sounds": [
+			"guns:tacshotgun_reload"
+		]
+	},
+	"tacshotgun_rack": {
+		"subtitle":"Tactical Shotgun Rack",
+		"sounds": [
+			"guns:tacshotgun_rack"
+		]
+	},
+	"longforce_shoot": {
+		"subtitle":"Longarm Enforcer Shoot",
+		"sounds": [
+			"guns:longforce_shoot"
+		]
+	},
+	"drumshot_reload": {
+		"subtitle":"Drum Shotgun Reload",
+		"sounds": [
+			"guns:drumshot_reload"
+		]
+	},
+	"drumshot_shoot": {
+		"subtitle":"Drum Shotgun Shoot",
+		"sounds": [
+			"guns:drumshot_shoot"
+		]
+	},
+	"tacshotgun_shoot": {
+		"subtitle":"Tactical Shotgun Shoot",
+		"sounds": [
+			"guns:tacshotgun_shoot"
+		]
+	},
+	"autosniper_reload": {
+		"subtitle":"Automatic Sniper Reload",
+		"sounds": [
+			"guns:autosniper_reload"
+		]
+	},
+	"autosniper_shoot": {
+		"subtitle":"Automatic Sniper Shoot",
+		"sounds": [
+			"guns:autosniper_shoot"
+		]
+	},
+	"screvolver_shoot": {
+		"subtitle":"Scoped Revolver Shoot",
+		"sounds": [
+			"guns:screvolver_shoot"
+		]
+	},
+	"aug_shoot": {
+		"subtitle":"Steyr AUG Shoot",
+		"sounds": [
+			"guns:aug_shoot"
+		]
+	},
+	"aug_reload": {
+		"subtitle":"Steyr AUG Reload",
+		"sounds": [
+			"guns:aug_reload"
+		]
+	},
+	"bfg_idle": {
+		"subtitle":"BFG 9000 Idle",
+		"sounds": [
+			"guns:bfg_idle"
+		]
+	},
+	"bfg_shoot": {
+		"subtitle":"BFG 9000 Shoot",
+		"sounds": [
+			"guns:bfg_shoot"
+		]
+	},
+	"bfg_reload": {
+		"subtitle":"BFG 9000 Reload",
+		"sounds": [
+			"guns:bfg_reload"
+		]
+	},
+	"rangershotgun_shoot": {
+		"subtitle":"Ranger Shotgun Shoot",
+		"sounds": [
+			"guns:rangershotgun_shoot"
+		]
+	},
+	"rangershotgun_reload": {
+		"subtitle":"Ranger Shotgun Reload",
+		"sounds": [
+			"guns:rangershotgun_reload"
+		]
+	},
+	"flashbang_ring": {
+		"subtitle":"Flashbang Ring",
+		"sounds": [
+			"guns:flashbang_ring"
+		]
+	},
+	"boomsniper_reload": {
+		"subtitle":"Sticky Sniper Reload",
+		"sounds": [
+			"guns:boomsniper_reload"
+		]
+	},
+	"boomsniper_shoot": {
+		"subtitle":"Sticky Sniper Shoot",
+		"sounds": [
+			"guns:boomsniper_shoot"
+		]
+	},
+	"breakaction_shoot": {
+		"subtitle":"Sawed Off Shoot",
+		"sounds": [
+			"guns:breakaction_shoot"
+		]
+	},
+	"breakaction_reload": {
+		"subtitle":"Sawed Off Reload",
+		"sounds": [
+			"guns:breakaction_reload"
+		]
+	},
+	"combat_shoot": {
+		"subtitle":"Combat Shotgun Shoot",
+		"sounds": [
+			"guns:combat_shoot"
+		]
+	},
+	"combat_reload": {
+		"subtitle":"Combat Shotgun Reload",
+		"sounds": [
+			"guns:combat_reload"
+		]
+	},
+	"combat_rack": {
+		"subtitle":"Combat Shotgun Rack",
+		"sounds": [
+			"guns:combat_rack"
+		]
+	},
+	"judge_shoot": {
+		"subtitle":"Judge Shoot",
+		"sounds": [
+			"guns:judge_shoot"
+		]
+	},
+	"judge_reload": {
+		"subtitle":"Judge Reload",
+		"sounds": [
+			"guns:judge_reload"
+		]
+	},
+	"machinepistol_reload": {
+		"subtitle":"Machine Pistol Reload",
+		"sounds": [
+			"guns:machinepistol_reload"
+		]
+	},
+	"machinepistol_shoot": {
+		"subtitle":"Machine Pistol Shoot",
+		"sounds": [
+			"guns:machinepistol_shoot"
+		]
+	},
+	"rampup_cooldown": {
+		"subtitle":"Ramp Up Rifle Cooldown",
+		"sounds": [
+			"guns:rampup_cooldown"
+		]
+	},
+	"rampup_shoot": {
+		"subtitle":"Ramp Up Rifle Shoot",
+		"sounds": [
+			"guns:rampup_shoot"
+		]
+	},
+	"blasterpistol_cooldown": {
+		"subtitle":"Blaster Pistol Cooldown",
+		"sounds": [
+			"guns:blasterpistol_cooldown"
+		]
+	},
+	"blasterpistol_shoot": {
+		"subtitle":"Blaster Pistol Shoot",
+		"sounds": [
+			"guns:blasterpistol_shoot"
+		]
+	}
+}

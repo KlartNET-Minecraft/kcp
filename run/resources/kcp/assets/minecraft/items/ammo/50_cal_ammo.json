@@ -1,0 +1,7 @@
+{
+	"model": {
+	  "type": "minecraft:model",
+	  "model": "minecraft:item/models/50_cal_ammo"
+	},
+	"hand_animation_on_swap": false
+  }

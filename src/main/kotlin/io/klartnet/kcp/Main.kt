@@ -1,7 +1,6 @@
 package io.klartnet.kcp
 
 import io.klartnet.kcp.instances.lobby.LobbyInstance
-import io.klartnet.kcp.resourcepack.ResourcePackServer
 import net.kyori.adventure.resource.ResourcePackInfo
 import net.kyori.adventure.resource.ResourcePackRequest
 import net.minestom.server.Auth
@@ -19,7 +18,6 @@ fun main() {
 		25555
 	)
 	resourcePackServer.start()
-	
 	val resourcePack = ResourcePackRequest.resourcePackRequest()
 		.packs(
 			ResourcePackInfo.resourcePackInfo(
@@ -32,8 +30,6 @@ fun main() {
 	
 	
 	val server = MinecraftServer.init(Auth.Online())
-
-	registerCommands()
 	
 	val globalEventHandler = MinecraftServer.getGlobalEventHandler()
 	globalEventHandler.apply {
@@ -55,8 +51,10 @@ fun main() {
 //			player.isAutoViewable = !isSpectator
 		}
 	}
+
+	registerCommands()
 	
-	startDebugMonitor()
+	watchDebugMode()
 	
 	server.start("0.0.0.0", 25575)
 }

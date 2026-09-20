@@ -1,0 +1,177 @@
+package io.klartnet.kcp.instances.game.weapon
+
+import io.klartnet.kcp.instances.game.loot.Item
+import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.minestom.server.coordinate.Point
+import net.minestom.server.coordinate.Pos
+import net.minestom.server.coordinate.Vec
+import net.minestom.server.entity.Entity
+import net.minestom.server.entity.LivingEntity
+import net.minestom.server.entity.Player
+import net.minestom.server.entity.damage.Damage
+import net.minestom.server.entity.damage.DamageType
+import net.minestom.server.network.packet.server.play.ParticlePacket
+import net.minestom.server.particle.Particle
+import net.minestom.server.sound.SoundEvent
+import net.minestom.server.tag.Tag
+import kotlin.math.abs
+
+private fun Entity.contains(point: Point): Boolean {
+	val rel = point.sub(position)
+	return (
+		abs(rel.x()) <= boundingBox.width() / 2.0 &&
+			abs(rel.z()) <= boundingBox.depth() / 2.0 &&
+			rel.y() in 0.0..boundingBox.height()
+		)
+}
+
+interface ConsumableWeapon
+
+abstract class Weapon(
+	val item: Item,
+	val maxAmmo: Int = 0,
+	val maxRange: Double = 0.0,
+	val damage: Float = 0.0f,
+	val reloadTicks: Int,
+	val sound: WeaponSound
+) {
+	private val AMMO_TAG = Tag.Integer("ammo_${this.item.material.name()}")
+	private val LASER_TAG = Tag.Long("laser")
+	
+	open fun onUse(player: Player) = fireGun(player, false)
+	open fun onRelease(player: Player) {}
+	open fun onSwing(player: Player) {}
+	open fun onReload(player: Player) = reloadGun(player)
+	open fun onHold(player: Player) = updateAmmoBar(player)
+	open fun onMove(player: Player) {}
+	
+	protected fun fireGun(player: Player, isCustomAction: Boolean = false) {
+		if (player.instance == null) return
+		if (player.onCooldown(this.item.material)) return
+
+		if (this is ConsumableWeapon) {
+			val heldWeapon = player.heldWeapon() ?: return
+			if (heldWeapon.item.material == this.item.material)
+				player.itemInMainHand = player.itemInMainHand.consume(1)
+		}
+
+		this.sound.playFireSound(player)
+
+		if (isCustomAction) {
+			// do custom things
+		} else {
+			if (player.onCooldown(this.item.material))
+				return
+
+			var ammo: Int = player.getTag(AMMO_TAG) ?: this.maxAmmo
+
+			ammo -= 1
+			player.setTag(AMMO_TAG, ammo)
+
+			updateAmmoBar(player)
+			shootRay(player)
+
+			if (ammo <= 0)
+				reloadGun(player)
+		}
+	}
+	protected fun drawLaser(
+		player: Player,
+		after: (point: Pos) -> Boolean = { false }
+	) {
+		val now = System.currentTimeMillis()
+		if (now - (player.getTag(LASER_TAG) ?: 0L) < 100) return
+		player.setTag(LASER_TAG, now)
+		
+		if (player.instance == null) return
+
+		val dir = player.position.direction().normalize()
+		val eye = player.position.add(
+			0.0,
+			if (player.isSneaking) 1.27 else player.eyeHeight,
+			0.0
+		)
+
+		for (step in 1..(this.maxRange * 2).toInt()) {
+			val point = eye.add(dir.mul(step * 0.5))
+			val blockedBlock = player.instance.getBlock(point)
+			if (blockedBlock.solid()) break
+
+			player.instance.players.forEach {
+				if (it != player)
+					it.sendPacket(
+						ParticlePacket(
+							Particle.CRIT,
+							point,
+							Vec.ZERO,
+							0f, 1
+						)
+					)
+			}
+
+			if (after(point)) break
+		}
+	}
+
+
+	private fun shootRay(player: Player) {
+		if (player.instance == null) return
+		if (player.heldWeapon() == null) return
+
+		drawLaser(player) { point ->
+			val target = player.instance.getNearbyEntities(point, 2.0)
+				.filterIsInstance<LivingEntity>()
+				.firstOrNull { it != player && it.contains(point) }
+				?: return@drawLaser false
+
+			player.playSound(
+				Sound.sound(
+					SoundEvent.ENTITY_ARROW_HIT_PLAYER,
+					Sound.Source.PLAYER,
+					1.5f, 1.2f
+				)
+			)
+
+			target.damage(
+				Damage(
+					DamageType.PLAYER_ATTACK,
+					null,
+					player,
+					point,
+					damage
+				)
+			)
+			return@drawLaser true
+		}
+	}
+	private fun reloadGun(player: Player) {
+		if (player.onCooldown(this.item.material))
+			return
+		
+		if ((player.getTag(AMMO_TAG) ?: this.maxAmmo) >= this.maxAmmo)
+			return
+
+		this.sound.playReloadSound(player)
+
+		player.setCooldown(this.item.material, this.reloadTicks)
+		player.setTag(AMMO_TAG, this.maxAmmo)
+	}
+	private fun updateAmmoBar(player: Player) {
+		if (this.maxAmmo <= 0)
+			return player.sendActionBar(Component.empty())
+
+		val ammo = player.getTag(AMMO_TAG) ?: this.maxAmmo
+		player.sendActionBar(
+			Component.text(
+				"$ammo / ${this.maxAmmo}",
+				when {
+					ammo > 10 -> NamedTextColor.GREEN
+					ammo > 0 -> NamedTextColor.YELLOW
+					else -> NamedTextColor.RED
+				}
+			)
+		)
+	}
+}

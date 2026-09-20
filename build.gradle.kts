@@ -30,6 +30,11 @@ tasks {
 	val outDir = layout.projectDirectory.dir("run")
 	val outName = "server.jar"
 	
+	processResources {
+		from("src/main/resources")
+		into(outDir.dir("resources"))
+	}
+	
 	jar {
 		enabled = false
 		manifest {
@@ -37,6 +42,8 @@ tasks {
 		}
 	}
 	shadowJar {
+		dependsOn(processResources)
+		
 		mergeServiceFiles()
 		archiveClassifier = ""
 		

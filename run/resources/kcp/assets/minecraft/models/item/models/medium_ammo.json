@@ -1,0 +1,7 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "items/item/bullet_6",
+        "particle": "items/item/bullet_6"
+    }
+}

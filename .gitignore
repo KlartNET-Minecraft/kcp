@@ -1,4 +1,5 @@
 run/server.jar
+run/resources/kcp/
 
 .gradle
 build/

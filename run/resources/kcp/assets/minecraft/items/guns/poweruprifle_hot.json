@@ -1,0 +1,7 @@
+{
+	"model": {
+	  "type": "minecraft:model",
+	  "model": "minecraft:item/models/poweruprifle_hot"
+	},
+	"hand_animation_on_swap": false
+  }

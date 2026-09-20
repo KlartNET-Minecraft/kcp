@@ -1,0 +1,10 @@
+{
+  "layers": {
+    
+    "humanoid": [
+      {
+        "texture": "t_armored"
+      }
+    ]
+  }
+}

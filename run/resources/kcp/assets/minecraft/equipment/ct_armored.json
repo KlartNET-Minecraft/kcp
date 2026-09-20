@@ -1,0 +1,9 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "ct_armored"
+      }
+    ]
+  }
+}
