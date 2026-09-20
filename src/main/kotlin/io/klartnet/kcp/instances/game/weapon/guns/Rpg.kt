@@ -9,6 +9,8 @@ import net.minestom.server.collision.Aerodynamics
 import net.minestom.server.entity.EntityProjectile
 import net.minestom.server.entity.EntityType
 import net.minestom.server.entity.Player
+import net.minestom.server.entity.damage.Damage
+import net.minestom.server.entity.damage.DamageType
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithBlockEvent
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEvent
 import net.minestom.server.sound.SoundEvent
@@ -68,7 +70,7 @@ class RpgProjectile(
 				event.collisionPosition.x.toFloat(),
 				event.collisionPosition.y.toFloat(),
 				event.collisionPosition.z.toFloat(),
-				30f
+				15f
 			)
 			
 			projectile.remove()
@@ -76,12 +78,24 @@ class RpgProjectile(
 		node.addListener(ProjectileCollideWithEntityEvent::class.java) { event ->
 			val projectile = event.entity as? RpgProjectile
 				?: return@addListener
+			val player = event.target as? Player
+				?: return@addListener
 
 			event.instance.explode(
 				event.collisionPosition.x.toFloat(),
 				event.collisionPosition.y.toFloat(),
 				event.collisionPosition.z.toFloat(),
-				30f
+				15f
+			)
+			
+			player.damage(
+				Damage(
+					DamageType.EXPLOSION,
+					null,
+					owner,
+					projectile.position,
+					20.0f
+				)
 			)
 
 			projectile.remove()

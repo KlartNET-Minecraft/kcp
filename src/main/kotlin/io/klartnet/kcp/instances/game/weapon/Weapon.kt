@@ -5,7 +5,6 @@ import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.coordinate.Point
-import net.minestom.server.coordinate.Pos
 import net.minestom.server.coordinate.Vec
 import net.minestom.server.entity.Entity
 import net.minestom.server.entity.LivingEntity
@@ -77,9 +76,8 @@ abstract class Weapon(
 				reloadGun(player)
 		}
 	}
-	protected fun drawLaser(
-		player: Player,
-		after: (point: Pos) -> Boolean = { false }
+	protected fun simulateLaser(
+		player: Player
 	) {
 		val now = System.currentTimeMillis()
 		if (now - (player.getTag(LASER_TAG) ?: 0L) < 100) return
@@ -110,8 +108,6 @@ abstract class Weapon(
 						)
 					)
 			}
-
-			if (after(point)) break
 		}
 	}
 
@@ -120,31 +116,30 @@ abstract class Weapon(
 		if (player.instance == null) return
 		if (player.heldWeapon() == null) return
 
-		drawLaser(player) { point ->
-			val target = player.instance.getNearbyEntities(point, 2.0)
-				.filterIsInstance<LivingEntity>()
-				.firstOrNull { it != player && it.contains(point) }
-				?: return@drawLaser false
+		simulateLaser(player)
+		
+		val target = player.getLineOfSightEntity(this.maxRange) {
+			it is LivingEntity
+		} as? LivingEntity
+			?: return
 
-			player.playSound(
-				Sound.sound(
-					SoundEvent.ENTITY_ARROW_HIT_PLAYER,
-					Sound.Source.PLAYER,
-					1.5f, 1.2f
-				)
+		player.playSound(
+			Sound.sound(
+				SoundEvent.ENTITY_ARROW_HIT_PLAYER,
+				Sound.Source.PLAYER,
+				1.5f, 1.2f
 			)
+		)
 
-			target.damage(
-				Damage(
-					DamageType.PLAYER_ATTACK,
-					null,
-					player,
-					point,
-					damage
-				)
+		target.damage(
+			Damage(
+				DamageType.PLAYER_ATTACK,
+				null,
+				player,
+				target.position,
+				damage
 			)
-			return@drawLaser true
-		}
+		)
 	}
 	private fun reloadGun(player: Player) {
 		if (player.onCooldown(this.item.material))

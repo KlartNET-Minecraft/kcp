@@ -41,7 +41,7 @@ fun main() {
 			event.spawningInstance = LobbyInstance.instance
 			
 			player.respawnPoint = LobbyInstance.map.spawnPos
-			player.getAttribute(Attribute.BLOCK_BREAK_SPEED).baseValue = 2.5
+			player.getAttribute(Attribute.BLOCK_BREAK_SPEED).baseValue = 1.0
 		}
 		addListener(PlayerGameModeChangeEvent::class.java) { event ->
 			val player = event.player

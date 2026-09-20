@@ -10,6 +10,7 @@ class Sniper : Weapon(
 	Item.SNIPER,
 	maxAmmo = 1,
 	maxRange = 50.0,
+	damage = 8.0f,
 	reloadTicks = 5 * 20,
 	sound = WeaponSound(
 		shootSound = Key.key("guns", "awp_shoot"),
@@ -18,5 +19,5 @@ class Sniper : Weapon(
 ) {
 	override fun onUse(player: Player) {}
 	override fun onRelease(player: Player) = super.fireGun(player, false)
-	override fun onMove(player: Player) = super.drawLaser(player, { false })
+	override fun onMove(player: Player) = super.simulateLaser(player)
 }

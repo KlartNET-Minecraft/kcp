@@ -3,13 +3,16 @@ package io.klartnet.kcp.instances.game.event
 import io.klartnet.kcp.instances.game.GameInstance
 import io.klartnet.kcp.instances.game.weapon.heldWeapon
 import net.kyori.adventure.text.Component
+import net.minestom.server.entity.PlayerHand
 import net.minestom.server.event.player.*
 import net.minestom.server.network.packet.client.play.ClientPlayerActionPacket
 
-fun addCombatListeners(game: GameInstance) {
+fun addWeaponListeners(game: GameInstance) {
 	val node = game.instance.eventNode()
 	
 	node.addListener(PlayerUseItemEvent::class.java) { event ->
+		if (event.hand != PlayerHand.MAIN) return@addListener
+		
 		val player = event.player
 		if (!game.isAlive(player)) return@addListener
 		

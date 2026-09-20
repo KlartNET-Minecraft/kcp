@@ -42,13 +42,13 @@ class WeaponSound(
 	fun playFireSound(player: Player) {
 		player.playWeaponSound(
 			shootSound.key(),
-			1.0f, 1f
+			0.8f, 1f
 		)
 	}
 	fun playReloadSound(player: Player) {
 		player.playWeaponSound(
 			reloadSound.key(),
-			1.0f, 1f
+			0.8f, 1f
 		)
 	}
 }
