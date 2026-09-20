@@ -66,8 +66,8 @@ fun addFootstepListeners(game: GameInstance) {
 			
 			val dy = event.newPosition.y - listener.position.y
 			val pitch = when {
-				dy > 1.5 -> basePitch * 0.7f
-				dy < -1.5 -> basePitch * 1.3f
+				dy > 1.5 -> basePitch * 1.5f
+				dy < -1.5 -> basePitch * 0.5f
 				else -> basePitch
 			}
 			
