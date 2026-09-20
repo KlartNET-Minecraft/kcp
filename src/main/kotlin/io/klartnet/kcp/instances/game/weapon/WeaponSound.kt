@@ -16,14 +16,12 @@ class WeaponSound(
 	) {
 		if (this.instance == null) return
 
-		val sound = Sound.sound(
-			soundEvent.key(),
-			Sound.Source.PLAYER,
-			volume, pitch
-		)
-
 		this.playSound(
-			sound,
+			Sound.sound(
+				soundEvent.key(),
+				Sound.Source.PLAYER,
+				volume, pitch
+			),
 			Sound.Emitter.self()
 		)
 
@@ -34,7 +32,12 @@ class WeaponSound(
 		)
 		this.instance.playSoundExcept(
 			this,
-			sound,
+			Sound.sound(
+				soundEvent.key(),
+				Sound.Source.PLAYER,
+				//TODO 본인 제외 모든 플레이어는 멀리서도 들릴 수 있도록 볼륨 수정
+				volume + 5.0f, pitch
+			),
 			eye
 		)
 	}
