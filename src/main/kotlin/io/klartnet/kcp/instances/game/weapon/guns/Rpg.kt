@@ -6,6 +6,7 @@ import io.klartnet.kcp.instances.game.weapon.Weapon
 import io.klartnet.kcp.instances.game.weapon.WeaponSound
 import net.kyori.adventure.key.Key
 import net.minestom.server.collision.Aerodynamics
+import net.minestom.server.coordinate.Vec
 import net.minestom.server.entity.EntityProjectile
 import net.minestom.server.entity.EntityType
 import net.minestom.server.entity.Player
@@ -14,6 +15,8 @@ import net.minestom.server.entity.damage.DamageType
 import net.minestom.server.event.entity.EntityTickEvent
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithBlockEvent
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEvent
+import net.minestom.server.network.packet.server.play.ParticlePacket
+import net.minestom.server.particle.Particle
 import net.minestom.server.sound.SoundEvent
 import net.minestom.server.tag.Tag
 import java.time.Duration
@@ -33,7 +36,7 @@ class Rpg : Weapon(
 ), ConsumableWeapon {
 	override fun onUse(player: Player) {
 		super.fireGun(player, true)
-
+		
 		val dir = player.position.direction()
 		val eye = player.position.add(
 			0.0,
@@ -67,7 +70,16 @@ private class RpgProjectile(
 		
 		val node = this.eventNode()
 		node.addListener(EntityTickEvent::class.java) { event ->
+			val entity = event.entity
 			
+			event.instance.sendGroupedPacket(
+				ParticlePacket(
+					Particle.SONIC_BOOM,
+					entity.position,
+					Vec.ZERO,
+					0f, 1
+				)
+			)
 		}
 		node.addListener(ProjectileCollideWithBlockEvent::class.java) { event ->
 			event.instance.explode(

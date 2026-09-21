@@ -1,7 +1,6 @@
 package io.klartnet.kcp.instances.game.event
 
 import io.klartnet.kcp.instances.game.GameInstance
-import io.klartnet.kcp.instances.game.loot.addDropListeners
 import io.klartnet.kcp.instances.game.loot.addLootListeners
 import net.minestom.server.event.item.ItemDropEvent
 import net.minestom.server.event.player.PlayerDeathEvent

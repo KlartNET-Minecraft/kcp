@@ -8,6 +8,7 @@ import net.minestom.server.instance.Instance
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import net.minestom.server.network.packet.server.play.MapDataPacket
+import kotlin.math.roundToInt
 
 class Minimap(
 	val id: Int,
@@ -59,7 +60,6 @@ class Minimap(
 			.with(DataComponents.MAP_ID, id)
 	}
 
-	// 1초 스케줄러에서 1회 호출: 테두리 1회 복사 후 모든 플레이어 패킷 일괄 전송
 	fun render(
 		players: Collection<Player>,
 		zoneCenter: Point,
@@ -69,7 +69,6 @@ class Minimap(
 		val startX = center.x - (mapSize / 2.0)
 		val startZ = center.z - (mapSize / 2.0)
 
-		// 현재 자기장 빨간색 테두리 (2px)
 		val half = zoneSize / 2.0
 		val minX = (((zoneCenter.x() - half - startX) / mapSize) * 128).toInt().coerceIn(0, 127)
 		val maxX = (((zoneCenter.x() + half - startX) / mapSize) * 128).toInt().coerceIn(0, 127)
@@ -90,11 +89,10 @@ class Minimap(
 			buffer[z * 128 + (maxX - 1).coerceAtLeast(0)] = red
 		}
 
-		// 플레이어 커서 부착
 		for (player in players) {
 			val p = player.position
-			val relX = ((p.x - center.x) / mapSize * 256.0).toInt().coerceIn(-128, 127).toByte()
-			val relZ = ((p.z - center.z) / mapSize * 256.0).toInt().coerceIn(-128, 127).toByte()
+			val relX = ((p.x - center.x) / mapSize * 256.0).roundToInt().coerceIn(-128, 127).toByte()
+			val relZ = ((p.z - center.z) / mapSize * 256.0).roundToInt().coerceIn(-128, 127).toByte()
 			val rot = (((p.yaw % 360.0 + 360.0) % 360.0 / 22.5) + 0.5).toInt().rem(16).toByte()
 
 			val cursor = MapDataPacket.Icon(0, relX, relZ, rot, null)

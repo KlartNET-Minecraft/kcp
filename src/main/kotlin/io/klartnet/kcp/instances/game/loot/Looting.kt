@@ -3,10 +3,8 @@ package io.klartnet.kcp.instances.game.loot
 import io.klartnet.kcp.instances.game.GameInstance
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.entity.PlayerHand
 import net.minestom.server.event.player.PlayerBlockInteractEvent
-import net.minestom.server.event.player.PlayerMoveEvent
 import net.minestom.server.instance.block.Block
 import net.minestom.server.inventory.Inventory
 import net.minestom.server.inventory.InventoryType
@@ -14,31 +12,60 @@ import net.minestom.server.item.ItemStack
 import net.minestom.server.sound.SoundEvent
 import kotlin.random.Random
 
+private class LootEntry(
+	val item: Item,
+	val amount: IntRange = 1..1,
+	val weight: Int = 1
+)
+
 private val lootTable = listOf(
-	Item.RIFLE to 10,
-	Item.SNIPER to 10,
-	Item.BANDAGE to 50,
-	Item.RPG to 5
+	LootEntry(
+		Item.RIFLE,
+		amount = 1..1,
+		weight = 15,
+	),
+	LootEntry(
+		Item.SNIPER,
+		amount = 1..1,
+		weight = 10,
+	),
+	LootEntry(
+		Item.RPG,
+		amount = 1..1,
+		weight = 5
+	),
+	LootEntry(
+		Item.AMMO,
+		amount = 15..20,
+		weight = 70
+	),
+	LootEntry(
+		Item.BANDAGE,
+		amount = 3..3,
+		weight = 40
+	),
 )
 
 private fun rollLoot(): ItemStack {
-	val total = lootTable.sumOf { it.second }
+	val total = lootTable.sumOf { it.weight }
 	var roll = Random.nextInt(total)
-	for ((item, weight) in lootTable) {
-		roll -= weight
-		if (roll < 0) return item.getItemStack()
+	for (entry in lootTable) {
+		roll -= entry.weight
+		if (roll < 0)
+			return entry.item.getItemStack().withAmount(entry.amount.random())
 	}
 	
-	return lootTable.first().first.getItemStack()
+	val first = lootTable.first()
+	return first.item.getItemStack().withAmount(first.amount.random())
 }
 
 fun addLootListeners(game: GameInstance) {
 	val node = game.instance.eventNode()
-	
+
 	node.addListener(PlayerBlockInteractEvent::class.java) { event ->
 		if (event.hand != PlayerHand.MAIN || !game.isAlive(event.player)) return@addListener
 		if (!event.block.compare(Block.CHEST) && !event.block.compare(Block.TRAPPED_CHEST)) return@addListener
-		
+
 		val blockPos = event.blockPosition
 		val inventory = game.containers.getOrCreate(blockPos) {
 			Inventory(
@@ -54,7 +81,7 @@ fun addLootListeners(game: GameInstance) {
 					}
 			}
 		}
-		
+
 		val player = event.player
 		player.openInventory(inventory)
 		player.instance.playSound(
@@ -66,30 +93,6 @@ fun addLootListeners(game: GameInstance) {
 			blockPos.x(),
 			blockPos.y(),
 			blockPos.z()
-		)
-	}
-}
-
-fun addDropListeners(game: GameInstance) {
-	val node = game.instance.eventNode()
-	
-	node.addListener(PlayerMoveEvent::class.java) { event ->
-		val player = event.player
-		if (event.newPosition.sameBlock(player.position))
-			return@addListener
-		if (!player.entityMeta.isFlyingWithElytra || !game.isAlive(player))
-			return@addListener
-
-		val altitude = (player.position.y - game.map.spawnPos.y).toInt().coerceAtLeast(0)
-		player.sendActionBar(
-			Component.text(
-				"지상까지 ${altitude}m 남음",
-				when {
-					altitude > 40 -> NamedTextColor.AQUA
-					altitude > 15 -> NamedTextColor.YELLOW
-					else -> NamedTextColor.RED
-				}
-			)
 		)
 	}
 }
