@@ -11,6 +11,7 @@ import net.minestom.server.entity.EntityType
 import net.minestom.server.entity.Player
 import net.minestom.server.entity.damage.Damage
 import net.minestom.server.entity.damage.DamageType
+import net.minestom.server.event.entity.EntityTickEvent
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithBlockEvent
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEvent
 import net.minestom.server.sound.SoundEvent
@@ -24,7 +25,10 @@ class Rpg : Weapon(
 	reloadTicks = 1 * 20,
 	sound = WeaponSound(
 		shootSound = SoundEvent.ITEM_TRIDENT_THROW,
-		reloadSound = Key.key("minecraft", "air")
+		reloadSound = SoundEvent.of(
+			Key.key("minecraft", "air"),
+			16f
+		)
 	)
 ), ConsumableWeapon {
 	override fun onUse(player: Player) {
@@ -49,7 +53,7 @@ class Rpg : Weapon(
 	}
 }
 
-class RpgProjectile(
+private class RpgProjectile(
 	val owner: Player
 ) : EntityProjectile(owner, EntityType.TRIDENT) {
 	init {
@@ -62,43 +66,34 @@ class RpgProjectile(
 		this.scheduleRemove(Duration.ofSeconds(5))
 		
 		val node = this.eventNode()
-		node.addListener(ProjectileCollideWithBlockEvent::class.java) { event ->
-			val projectile = event.entity as? RpgProjectile
-				?: return@addListener
+		node.addListener(EntityTickEvent::class.java) { event ->
 			
+		}
+		node.addListener(ProjectileCollideWithBlockEvent::class.java) { event ->
 			event.instance.explode(
 				event.collisionPosition.x.toFloat(),
 				event.collisionPosition.y.toFloat(),
 				event.collisionPosition.z.toFloat(),
-				15f
+				5f
 			)
 			
-			projectile.remove()
+			event.entity.remove()
 		}
 		node.addListener(ProjectileCollideWithEntityEvent::class.java) { event ->
-			val projectile = event.entity as? RpgProjectile
-				?: return@addListener
 			val player = event.target as? Player
 				?: return@addListener
-
-			event.instance.explode(
-				event.collisionPosition.x.toFloat(),
-				event.collisionPosition.y.toFloat(),
-				event.collisionPosition.z.toFloat(),
-				15f
-			)
 			
 			player.damage(
 				Damage(
 					DamageType.EXPLOSION,
 					null,
 					owner,
-					projectile.position,
-					20.0f
+					event.entity.position,
+					16.0f
 				)
 			)
 
-			projectile.remove()
+			event.entity.remove()
 		}
 	}
 }

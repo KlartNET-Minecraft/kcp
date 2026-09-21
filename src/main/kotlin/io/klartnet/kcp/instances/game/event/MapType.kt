@@ -57,6 +57,39 @@ enum class MapType(
 			),
 		)
 	),
+	MINESCHOOL(
+		mapName = "mineschool",
+		spawnPos = Pos(0.0, 72.0, 0.0),
+		phases = listOf(
+			ZonePhase(
+				size = 300.0,
+			),
+			ZonePhase(
+				size = 200.0,
+				waitSec = 60,
+				shrinkSec = 60,
+				dps = 1.0F
+			),
+			ZonePhase(
+				size = 100.0,
+				waitSec = 60,
+				shrinkSec = 60,
+				dps = 2.0F
+			),
+			ZonePhase(
+				size = 50.0,
+				waitSec = 30,
+				shrinkSec = 60,
+				dps = 3.0F
+			),
+			ZonePhase(
+				size = 0.0,
+				waitSec = 30,
+				shrinkSec = 60,
+				dps = 4.0F
+			),
+		)
+	),
 	BROVILLE(
 		mapName = "broville",
 		spawnPos = Pos(0.0, 72.0, 2048.0),

@@ -1,16 +1,16 @@
 package io.klartnet.kcp.instances.game.weapon
 
-import net.kyori.adventure.key.Keyed
 import net.kyori.adventure.sound.Sound
 import net.minestom.server.entity.Player
+import net.minestom.server.sound.SoundEvent
 
 
 class WeaponSound(
-	val shootSound: Keyed,
-	val reloadSound: Keyed,
+	val shootSound: SoundEvent,
+	val reloadSound: SoundEvent,
 ) {
 	private fun Player.playWeaponSound(
-		soundEvent: Keyed,
+		soundEvent: SoundEvent,
 		volume: Float = 0.5f,
 		pitch: Float = 1f
 	) {
@@ -18,7 +18,7 @@ class WeaponSound(
 
 		this.playSound(
 			Sound.sound(
-				soundEvent.key(),
+				soundEvent,
 				Sound.Source.PLAYER,
 				volume, pitch
 			),
@@ -35,8 +35,7 @@ class WeaponSound(
 			Sound.sound(
 				soundEvent.key(),
 				Sound.Source.PLAYER,
-				//TODO 본인 제외 모든 플레이어는 멀리서도 들릴 수 있도록 볼륨 수정
-				volume + 5.0f, pitch
+				volume + 0.5f, pitch
 			),
 			eye
 		)
@@ -44,13 +43,13 @@ class WeaponSound(
 
 	fun playFireSound(player: Player) {
 		player.playWeaponSound(
-			shootSound.key(),
+			shootSound,
 			0.8f, 1f
 		)
 	}
 	fun playReloadSound(player: Player) {
 		player.playWeaponSound(
-			reloadSound.key(),
+			reloadSound,
 			0.8f, 1f
 		)
 	}

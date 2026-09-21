@@ -17,7 +17,7 @@ import kotlin.random.Random
 private val lootTable = listOf(
 	Item.RIFLE to 10,
 	Item.SNIPER to 10,
-	Item.BANDAGE to 70,
+	Item.BANDAGE to 50,
 	Item.RPG to 5
 )
 

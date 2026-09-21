@@ -58,6 +58,7 @@ class GameInstance(
 		.apply {
 			chunkLoader = PolarLoader(map.createWorld())
 			explosionSupplier = featureSet.get(FeatureType.EXPLOSION).explosionSupplier
+			setGenerator(null)
 		}
 	
 	private val minimap = Minimap(

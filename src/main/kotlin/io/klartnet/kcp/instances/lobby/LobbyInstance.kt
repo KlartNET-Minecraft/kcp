@@ -15,6 +15,7 @@ object LobbyInstance {
 		.createInstanceContainer()
 		.apply {
 			chunkLoader = PolarLoader(map.createWorld())
+			setGenerator(null)
 		}
 	
 	init {

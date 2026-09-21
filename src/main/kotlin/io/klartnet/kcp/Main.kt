@@ -48,7 +48,7 @@ fun main() {
 			val isSpectator = event.newGameMode == GameMode.SPECTATOR
 			
 			player.isInvulnerable = isSpectator
-//			player.isAutoViewable = !isSpectator
+			player.isAutoViewable = !isSpectator
 		}
 	}
 

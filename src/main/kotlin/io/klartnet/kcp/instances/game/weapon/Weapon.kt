@@ -4,9 +4,7 @@ import io.klartnet.kcp.instances.game.loot.Item
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.minestom.server.coordinate.Point
 import net.minestom.server.coordinate.Vec
-import net.minestom.server.entity.Entity
 import net.minestom.server.entity.LivingEntity
 import net.minestom.server.entity.Player
 import net.minestom.server.entity.damage.Damage
@@ -15,16 +13,6 @@ import net.minestom.server.network.packet.server.play.ParticlePacket
 import net.minestom.server.particle.Particle
 import net.minestom.server.sound.SoundEvent
 import net.minestom.server.tag.Tag
-import kotlin.math.abs
-
-private fun Entity.contains(point: Point): Boolean {
-	val rel = point.sub(position)
-	return (
-		abs(rel.x()) <= boundingBox.width() / 2.0 &&
-			abs(rel.z()) <= boundingBox.depth() / 2.0 &&
-			rel.y() in 0.0..boundingBox.height()
-		)
-}
 
 interface ConsumableWeapon
 
