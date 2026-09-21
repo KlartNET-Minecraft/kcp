@@ -1,7 +1,0 @@
-{
-	"model": {
-	  "type": "minecraft:model",
-	  "model": "minecraft:item/models/m1garand_s"
-	},
-	"hand_animation_on_swap": false
-  }

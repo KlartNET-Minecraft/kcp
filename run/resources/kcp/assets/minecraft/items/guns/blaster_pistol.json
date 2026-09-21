@@ -1,7 +1,0 @@
-{
-	"model": {
-	  "type": "minecraft:model",
-	  "model": "minecraft:item/models/blaster_pistol"
-	},
-	"hand_animation_on_swap": false
-  }

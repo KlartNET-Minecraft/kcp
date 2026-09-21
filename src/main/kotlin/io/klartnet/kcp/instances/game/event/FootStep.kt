@@ -39,17 +39,17 @@ fun addFootstepListeners(game: GameInstance) {
 		
 		if (distance <= 0.001)
 			return@addListener
-
+		
 		val stepInterval = if (player.isSprinting) 1.3 else 1.9
 		val travelled = (player.getTag(STEPDIST_TAG) ?: 0.0) + distance
-
+		
 		if (travelled < stepInterval) {
 			player.setTag(STEPDIST_TAG, travelled)
 			return@addListener
 		}
 		
 		player.setTag(STEPDIST_TAG, travelled - stepInterval)
-
+		
 		val block = game.instance.getBlock(
 			event.newPosition.blockX(),
 			floor(event.newPosition.y - 0.1).toInt(),
@@ -81,7 +81,7 @@ fun addFootstepListeners(game: GameInstance) {
 			)
 		}
 	}
-
+	
 	node.addListener(PlayerStartDiggingEvent::class.java) { event ->
 		val player = event.player
 		

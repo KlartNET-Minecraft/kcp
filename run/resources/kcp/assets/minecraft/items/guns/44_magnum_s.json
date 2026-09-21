@@ -1,7 +1,0 @@
-{
-	"model": {
-	  "type": "minecraft:model",
-	  "model": "minecraft:item/models/44_magnum_s"
-	},
-	"hand_animation_on_swap": false
-  }

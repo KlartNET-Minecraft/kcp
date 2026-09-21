@@ -1,7 +1,0 @@
-{
-	"model": {
-	  "type": "minecraft:model",
-	  "model": "minecraft:item/models/ssg08_s"
-	},
-	"hand_animation_on_swap": false
-  }
