@@ -59,25 +59,25 @@ enum class MapType(
 	),
 	MINESCHOOL(
 		mapName = "mineschool",
-		spawnPos = Pos(0.0, 72.0, 0.0),
+		spawnPos = Pos(-65.5, 64.0, -109.5),
 		phases = listOf(
 			ZonePhase(
-				size = 300.0,
+				size = 400.0,
 			),
 			ZonePhase(
-				size = 200.0,
+				size = 300.0,
 				waitSec = 60,
 				shrinkSec = 60,
 				dps = 1.0F
 			),
 			ZonePhase(
-				size = 100.0,
+				size = 200.0,
 				waitSec = 60,
 				shrinkSec = 60,
 				dps = 2.0F
 			),
 			ZonePhase(
-				size = 50.0,
+				size = 100.0,
 				waitSec = 30,
 				shrinkSec = 60,
 				dps = 3.0F

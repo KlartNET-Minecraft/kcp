@@ -39,24 +39,25 @@ abstract class Weapon(
 		if (player.onCooldown(this.item.material)) return
 
 		if (this is ConsumableWeapon) {
-			val heldWeapon = player.heldWeapon() ?: return
-			if (heldWeapon.item.material == this.item.material)
-				player.itemInMainHand = player.itemInMainHand.consume(1)
+			player.itemInMainHand = player.itemInMainHand.consume(1)
+			
+			this.sound.playFireSound(player)
 		}
 
-		this.sound.playFireSound(player)
-
-		if (isCustomAction) {
-			// do custom things
-		} else {
+		if (!isCustomAction) {
 			if (player.onCooldown(this.item.material))
 				return
 
 			var ammo: Int = player.getTag(AMMO_TAG) ?: this.maxAmmo
+			if (ammo <= 0) {
+				reloadGun(player)
+				return
+			}
 
 			ammo -= 1
 			player.setTag(AMMO_TAG, ammo)
 
+			this.sound.playFireSound(player)
 			updateAmmoBar(player)
 			shootRay(player)
 
@@ -100,6 +101,22 @@ abstract class Weapon(
 	}
 
 
+	private fun getAllAmmo(player: Player): Int {
+		return player.inventory.itemStacks
+			.filter { it.material() == Item.AMMO.material }
+			.sumOf { it.amount() }
+	}
+	private fun consumeAmmo(player: Player, count: Int): Int {
+		var needed = count
+		for ((slot, item) in player.inventory.itemStacks.withIndex()) {
+			if (item.material() != Item.AMMO.material) continue
+			val take = minOf(needed, item.amount())
+			player.inventory.setItemStack(slot, item.consume(take))
+			needed -= take
+			if (needed <= 0) break
+		}
+		return count - needed
+	}
 	private fun shootRay(player: Player) {
 		if (player.instance == null) return
 		if (player.heldWeapon() == null) return
@@ -133,25 +150,40 @@ abstract class Weapon(
 		if (player.onCooldown(this.item.material))
 			return
 		
-		if ((player.getTag(AMMO_TAG) ?: this.maxAmmo) >= this.maxAmmo)
+		val currentAmmo = (player.getTag(AMMO_TAG) ?: this.maxAmmo).coerceAtLeast(0)
+		val needed = this.maxAmmo - currentAmmo
+		if (needed <= 0)
 			return
+		
+		val reloaded = consumeAmmo(player, needed)
+		if (reloaded <= 0) {
+			player.playSound(
+				Sound.sound(
+					SoundEvent.BLOCK_DISPENSER_FAIL,
+					Sound.Source.PLAYER,
+					1.0f, 1.2f
+				)
+			)
+			return
+		}
 
 		this.sound.playReloadSound(player)
 
 		player.setCooldown(this.item.material, this.reloadTicks)
-		player.setTag(AMMO_TAG, this.maxAmmo)
+		player.setTag(AMMO_TAG, currentAmmo + reloaded)
 	}
 	private fun updateAmmoBar(player: Player) {
 		if (this.maxAmmo <= 0)
 			return player.sendActionBar(Component.empty())
 
-		val ammo = player.getTag(AMMO_TAG) ?: this.maxAmmo
+		val currentAmmo = player.getTag(AMMO_TAG) ?: this.maxAmmo
+		val totalAmmo = getAllAmmo(player)
 		player.sendActionBar(
 			Component.text(
-				"$ammo / ${this.maxAmmo}",
+				"$currentAmmo / $totalAmmo",
 				when {
-					ammo > 10 -> NamedTextColor.GREEN
-					ammo > 0 -> NamedTextColor.YELLOW
+					currentAmmo > 10 -> NamedTextColor.GREEN
+					currentAmmo > 0 -> NamedTextColor.YELLOW
 					else -> NamedTextColor.RED
 				}
 			)
