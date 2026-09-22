@@ -18,24 +18,22 @@ import java.util.concurrent.ThreadLocalRandom
 
 class Shotgun : Weapon(
 	Item.SHOTGUN,
-	maxAmmo = 4,
-	maxRange = 10.0,
-	damage = 2.0f,
-	reloadTicks = 2 * 20,
+	maxAmmo = 1,
+	maxRange = 20.0,
+	damage = 1.0f,
+	reloadTicks = 1 * 20,
 	sound = WeaponSound(
 		shootSound = SoundEvent.of(
 			Key.key("guns:pump_shoot"),
 			16f,
 		),
 		reloadSound = SoundEvent.of(
-			Key.key("guns:pump_reload"),
+			Key.key("guns:pump_rack"),
 			16f
 		)
 	)
 ) {
-	override fun onUse(player: Player) {
-		super.fireGun(player, true)
-		
+	override fun onShoot(player: Player) {
 		if (player.instance == null) return
 
 		val eyePos = player.position.add(0.0, player.eyeHeight, 0.0)
@@ -48,45 +46,44 @@ class Shotgun : Weapon(
 				(random.nextDouble() - 0.5) * 0.4,
 				(random.nextDouble() - 0.5) * 0.4
 			)
-			val vel = dir.add(spread).normalize().mul(30.0)
+			val vel = dir.add(spread).normalize().mul(50.0)
 
 			val spit = Entity(EntityType.LLAMA_SPIT).apply {
 				velocity = vel
+			}
+			spit.eventNode().addListener(EntityTickEvent::class.java) { event ->
+				if (spit.isRemoved) return@addListener
 
-				eventNode().addListener(EntityTickEvent::class.java) { event ->
-					if (isRemoved) return@addListener
-					
-					if (
-						position.distance(eyePos) > maxRange ||
-						velocity.lengthSquared() < 0.01
-					) {
-						remove()
-						return@addListener
-					}
-
-					val target = player.instance.getNearbyEntities(position, 1.2)
-						.firstOrNull { it is LivingEntity && it != player && it != this }
-						as? LivingEntity
-						?: return@addListener
-
-					target.damage(
-						Damage(
-							DamageType.PLAYER_ATTACK,
-							null,
-							player,
-							target.position,
-							damage
-						)
-					)
-					player.playSound(
-						Sound.sound(
-							SoundEvent.ENTITY_ARROW_HIT_PLAYER,
-							Sound.Source.PLAYER,
-							1.5f, 1.2f
-						)
-					)
-					remove()
+				if (
+					spit.position.distance(eyePos) > maxRange ||
+					spit.velocity.lengthSquared() < 0.01
+				) {
+					spit.remove()
+					return@addListener
 				}
+
+				val target = player.instance.getNearbyEntities(spit.position, 1.2)
+					.firstOrNull { it is LivingEntity && it != player && it != this }
+					as? LivingEntity
+					?: return@addListener
+
+				target.damage(
+					Damage(
+						DamageType.PLAYER_ATTACK,
+						null,
+						player,
+						target.position,
+						damage
+					)
+				)
+				player.playSound(
+					Sound.sound(
+						SoundEvent.ENTITY_ARROW_HIT_PLAYER,
+						Sound.Source.PLAYER,
+						1.5f, 1.2f
+					)
+				)
+				spit.remove()
 			}
 			spit.setInstance(player.instance, eyePos)
 		}

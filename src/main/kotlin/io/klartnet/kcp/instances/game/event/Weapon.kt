@@ -2,6 +2,7 @@ package io.klartnet.kcp.instances.game.event
 
 import io.klartnet.kcp.instances.game.GameInstance
 import io.klartnet.kcp.instances.game.weapon.heldWeapon
+import io.klartnet.kcp.instances.game.weapon.onCooldown
 import net.kyori.adventure.text.Component
 import net.minestom.server.entity.PlayerHand
 import net.minestom.server.event.player.*
@@ -11,23 +12,32 @@ fun addWeaponListeners(game: GameInstance) {
 	val node = game.instance.eventNode()
 	
 	node.addListener(PlayerUseItemEvent::class.java) { event ->
-		if (event.hand != PlayerHand.MAIN) return@addListener
+		if (event.hand != PlayerHand.MAIN)
+			return@addListener
 		
 		val player = event.player
-		if (!game.isAlive(player)) return@addListener
+		if (!game.isAlive(player))
+			return@addListener
+		
+		if (player.onCooldown(player.itemInMainHand.material())) {
+			event.isCancelled = true
+			return@addListener
+		}
 		
 		player.heldWeapon()?.onUse(player)
 	}
 	
 	node.addListener(PlayerMoveEvent::class.java) { event ->
 		val player = event.player
-		if (!game.isAlive(player)) return@addListener
+		if (!game.isAlive(player))
+			return@addListener
 
 		player.heldWeapon()?.onMove(player)
 	}
 
 	node.addListener(PlayerPacketEvent::class.java) { event ->
-		val packet = event.packet as? ClientPlayerActionPacket ?: return@addListener
+		val packet = event.packet as? ClientPlayerActionPacket
+			?: return@addListener
 		if (packet.status.ordinal == 5 && game.isAlive(event.player)) {
 			val player = event.player
 			
@@ -37,7 +47,8 @@ fun addWeaponListeners(game: GameInstance) {
 	
 	node.addListener(PlayerHandAnimationEvent::class.java) { event ->
 		val player = event.player
-		if (!game.isAlive(player)) return@addListener
+		if (!game.isAlive(player))
+			return@addListener
 		
 		player.heldWeapon()?.onSwing(player)
 	}
@@ -46,7 +57,8 @@ fun addWeaponListeners(game: GameInstance) {
 		event.isCancelled = true
 		
 		val player = event.player
-		if (!game.isAlive(player)) return@addListener
+		if (!game.isAlive(player))
+			return@addListener
 		
 		player.heldWeapon()?.onReload(player) ?: player.sendActionBar(Component.empty())
 	}

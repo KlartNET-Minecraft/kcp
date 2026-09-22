@@ -5,7 +5,7 @@ import net.minestom.server.item.Material
 import net.minestom.server.network.packet.server.play.SetCooldownPacket
 import net.minestom.server.tag.Tag
 
-internal fun Player.onCooldown(material: Material): Boolean {
+fun Player.onCooldown(material: Material): Boolean {
 	val cooldown = this.getTag(
 		Tag.Long("cd_${material.name()}")
 	) ?: 0L

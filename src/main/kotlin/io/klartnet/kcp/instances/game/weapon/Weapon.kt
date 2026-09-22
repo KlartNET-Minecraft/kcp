@@ -34,13 +34,16 @@ abstract class Weapon(
 	open fun onHold(player: Player) = updateAmmoBar(player)
 	open fun onMove(player: Player) {}
 	
+	open fun onShoot(player: Player) = shootRay(player)
+	
 	protected fun fireGun(player: Player, isCustomAction: Boolean = false) {
-		if (player.instance == null) return
-		if (player.onCooldown(this.item.material)) return
+		if (player.instance == null)
+			return
+		if (player.onCooldown(this.item.material))
+			return
 
 		if (this is ConsumableWeapon) {
 			player.itemInMainHand = player.itemInMainHand.consume(1)
-			
 			this.sound.playFireSound(player)
 		} else {
 			var ammo: Int = player.getTag(AMMO_TAG) ?: this.maxAmmo
@@ -54,7 +57,7 @@ abstract class Weapon(
 			
 			this.sound.playFireSound(player)
 			updateAmmoBar(player)
-			if (!isCustomAction) shootRay(player)
+			onShoot(player)
 
 			if (ammo <= 0)
 				reloadGun(player)
@@ -64,10 +67,12 @@ abstract class Weapon(
 		player: Player
 	) {
 		val now = System.currentTimeMillis()
-		if (now - (player.getTag(LASER_TAG) ?: 0L) < 100) return
+		if (now - (player.getTag(LASER_TAG) ?: 0L) < 100)
+			return
 		player.setTag(LASER_TAG, now)
 		
-		if (player.instance == null) return
+		if (player.instance == null)
+			return
 
 		val dir = player.position.direction().normalize()
 		val eye = player.position.add(
