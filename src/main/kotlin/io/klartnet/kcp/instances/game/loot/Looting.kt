@@ -25,9 +25,14 @@ private val lootTable = listOf(
 		weight = 15,
 	),
 	LootEntry(
+		Item.SHOTGUN,
+		amount = 1..1,
+		weight = 15,
+	),
+	LootEntry(
 		Item.SNIPER,
 		amount = 1..1,
-		weight = 10,
+		weight = 15,
 	),
 	LootEntry(
 		Item.RPG,

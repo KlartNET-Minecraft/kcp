@@ -78,6 +78,14 @@ enum class Item(
 		),
 		modelKey = "minecraft:guns/autosniper"
 	),
+	SHOTGUN(
+		ItemCategory.WEAPON,
+		Material.IRON_AXE,
+		itemName = cleanText(
+			"샷건",
+		),
+		modelKey = "minecraft:guns/pump_shotgun"
+	),
 	RPG(
 		ItemCategory.WEAPON,
 		Material.DIAMOND_SPEAR,

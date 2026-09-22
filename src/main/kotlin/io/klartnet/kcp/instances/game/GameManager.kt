@@ -25,7 +25,7 @@ object GameManager {
 
 		val target = findAvailableGame() ?: GameInstance(
 			idCounter.getAndIncrement(),
-			MapType.MINESCHOOL
+			MapType.SMALL
 		)
 		games[target.id] = target
 		

@@ -42,12 +42,7 @@ abstract class Weapon(
 			player.itemInMainHand = player.itemInMainHand.consume(1)
 			
 			this.sound.playFireSound(player)
-		}
-
-		if (!isCustomAction) {
-			if (player.onCooldown(this.item.material))
-				return
-
+		} else {
 			var ammo: Int = player.getTag(AMMO_TAG) ?: this.maxAmmo
 			if (ammo <= 0) {
 				reloadGun(player)
@@ -56,10 +51,10 @@ abstract class Weapon(
 
 			ammo -= 1
 			player.setTag(AMMO_TAG, ammo)
-
+			
 			this.sound.playFireSound(player)
 			updateAmmoBar(player)
-			shootRay(player)
+			if (!isCustomAction) shootRay(player)
 
 			if (ammo <= 0)
 				reloadGun(player)
